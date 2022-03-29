@@ -30,61 +30,99 @@ require([
         let codsed = '';
         _proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
         $(document).ready(function(){
-            
-            let urlparams= window.location.search;
-            _globalidor = urlparams.substring(1);
-            //console.log(_globalidor);
-            codsed = _globalidor.split('=')[1];
-            console.log(codsed);
-            urlUtils.addProxyRule({
-                urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
-                proxyUrl: _proxyurl
-            });    
-            //// URL DE WEB SERVICES
-            url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/arcgis/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
-            url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/arcgis/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
-            url_uap_super = "https://services5.arcgis.com/oAvs2fapEemUpOTy/arcgis/rest/services/BD_SupervUAP_agol_3/FeatureServer/3";
-            // DEFINICIÓN DE FEATURE LAYERS 
-            let layer_sed_superv = new FeatureLayer({
-                url: url_sed_superv,
-                /*where: "1 = '1",*/
-                title: "SED",
-                outFields: ["*"],
-                visible:true,
-                definitionExpression: "1=1"
-                //definitionExpression: "CODSED='5022025'"
-            });
-            let layer_tramo_superv = new FeatureLayer({
-                url: url_tramo_superv,
-                /*where: "1 = 1",*/
-                title: "TRAMO",
-                outFields: ["*"],
-                visible:true,
-                definitionExpression: "1=1"
-            });
-            let layer_uap_super = new FeatureLayer({
-                url: url_uap_super,
-                title: "UAP",
-                outFields: ["*"],
-                visible:true,
-                definitionExpression: "1=1"
-            });
             map = new Map({
                 basemap: "hybrid"
-            });
-            map.layers.add(layer_sed_superv);
-            map.layers.add(layer_tramo_superv);
-            map.layers.add(layer_uap_super);
+            });            
             view = new MapView({
                 container: "map",
                 map: map,
                 center: [-74.049, -8.185],
                 zoom: 5
             });
+            let urlparams= window.location.search;
+            _globalidor = urlparams.substring(1);
+            console.log(_globalidor);
+            codsed = _globalidor.split('=')[1];
+            console.log(codsed);
+            //urlUtils.addProxyRule({
+            //    urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
+            //    proxyUrl: _proxyurl
+            //});    
+            //// URL DE WEB SERVICES
+            let quantityRecords=0;
+            url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/0";
+            url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/arcgis/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
+            url_uap_super = "https://services5.arcgis.com/oAvs2fapEemUpOTy/arcgis/rest/services/BD_SupervUAP_agol_3/FeatureServer/3";
+            // DEFINICIÓN DE FEATURE LAYERS 
+            let where = "CODSED = '" + codsed + "'";
+
+            let layer_sed_superv = createFeatureLayer(url_sed_superv);
+            //let layer_tramo_superv = new FeatureLayer({
+            //    url: url_tramo_superv,
+            //    /*where: "1 = 1",*/
+            //    title: "TRAMO",
+            //    outFields: ["*"],
+            //    visible:true,
+            //    definitionExpression: "1=1"
+            //});
+            //let layer_uap_super = new FeatureLayer({
+            //    url: url_uap_super,
+            //    title: "UAP",
+            //    outFields: ["*"],
+            //    visible:true,
+            //    definitionExpression: "1=1"
+            //});
+            filterFeatureLayer(layer_sed_superv);
+            map.add(layer_sed_superv);
+            //map.layers.add(layer_tramo_superv);
+            //map.layers.add(layer_uap_super);
+            createLegend(url_sed_superv);
             $("#descargar").click(function(){
                 console.log("descargar mapa");
             });
             //cargarDataInit(_codsed);
+            
+            function createFeatureLayer(url_sed_superv){
+                let layer_sed_superv = new FeatureLayer({
+                    url: url_sed_superv,
+                    title: "SED",
+                    outFields: ["*"],
+                    definitionExpression: where
+                });
+                return layer_sed_superv;
+            }
+            function filterFeatureLayer(layer_sed_superv){
+                const query = new Query();
+                query.where = where;
+                query.outSpatialReference = { wkid: 4326 };
+                query.returnGeometry = true;
+                query.outFields = ["*"];
+                layer_sed_superv.queryFeatures(query).then(results => {
+                    // prints the array of features to the console
+                    quantityRecords = results.features.length;
+                    if (results.features.length == 0) {                    
+                        return;
+                    }
+                    zoomToLayer(results);
+                });
+            }
+            function zoomToLayer(results){
+                var point = results.features[0];
+                view.goTo({
+                    center: [point.geometry.x, point.geometry.y],
+                    zoom: 12
+                });
+            }
+            function createLegend(url_sed_superv){
+                let $div = $("#legend");
+                $.getJSON(url_sed_superv+"?f=json", function( data ) {
+                    console.log(data);
+                    $div.append("<span> "+quantityRecords+"</span>");
+                    data.drawingInfo.renderer.uniqueValueInfos.forEach( data => {
+                        $div.append("<img src=data:"+data.symbol.contentType+";base64,"+data.symbol.imageData+">");
+                    })
+                });
+            }
         });
 
         function cargarDataInit(_globalidor){
@@ -98,7 +136,6 @@ require([
                 console.log(response.features);
             });
         }
-
     });
 
 /*function mostrarDepartamento(glob){
