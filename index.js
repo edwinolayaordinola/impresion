@@ -1,7 +1,7 @@
 let map, view;
 let url_sed_superv = "";
 let url_tramo_superv = "";
-let url_uap_super = "";
+let url_uap_superv = "";
 
 
 require([
@@ -30,6 +30,16 @@ require([
         let codsed = '';
         _proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
         $(document).ready(function(){
+
+            $("#item-png").click(function(){
+                console.log("png");
+            });
+            $("#item-jpg").click(function(){
+                console.log("jpg");
+            });
+            $("#item-pdf").click(function(){
+                console.log("pdf");
+            });
             map = new Map({
                 basemap: "hybrid"
             });            
@@ -41,47 +51,37 @@ require([
             });
             let urlparams= window.location.search;
             _globalidor = urlparams.substring(1);
-            console.log(_globalidor);
             codsed = _globalidor.split('=')[1];
-            console.log(codsed);
-            //urlUtils.addProxyRule({
-            //    urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
-            //    proxyUrl: _proxyurl
-            //});    
+            /*urlUtils.addProxyRule({
+                urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
+                proxyUrl: _proxyurl
+            });*/
             //// URL DE WEB SERVICES
             let quantityRecords=0;
+            /*servicio protegio */
+            /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
+            url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
+            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/arcgis/rest/services/BD_SupervUAP_agol_3/FeatureServer/3";*/
+            /**servicio abierto */
             url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/0";
-            url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/arcgis/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
-            url_uap_super = "https://services5.arcgis.com/oAvs2fapEemUpOTy/arcgis/rest/services/BD_SupervUAP_agol_3/FeatureServer/3";
+            url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/2";
+            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/3";
+            
             // DEFINICIÓN DE FEATURE LAYERS 
             let where = "CODSED = '" + codsed + "'";
 
             let layer_sed_superv = createFeatureLayer(url_sed_superv);
-            //let layer_tramo_superv = new FeatureLayer({
-            //    url: url_tramo_superv,
-            //    /*where: "1 = 1",*/
-            //    title: "TRAMO",
-            //    outFields: ["*"],
-            //    visible:true,
-            //    definitionExpression: "1=1"
-            //});
-            //let layer_uap_super = new FeatureLayer({
-            //    url: url_uap_super,
-            //    title: "UAP",
-            //    outFields: ["*"],
-            //    visible:true,
-            //    definitionExpression: "1=1"
-            //});
+            let layer_tramo_superv = createFeatureLayer(url_tramo_superv);
+            let layer_uap_superv = createFeatureLayer(url_uap_superv);
             filterFeatureLayer(layer_sed_superv);
+            filterFeatureTramoLayer(layer_tramo_superv);
+            filterFeatureLayer(layer_uap_superv);
             map.add(layer_sed_superv);
-            //map.layers.add(layer_tramo_superv);
-            //map.layers.add(layer_uap_super);
+            map.add(layer_tramo_superv);
+            map.add(layer_uap_superv);
             createLegend(url_sed_superv);
-            $("#descargar").click(function(){
-                console.log("descargar mapa");
-            });
-            //cargarDataInit(_codsed);
-            
+            createLegendTramo(url_tramo_superv);
+            //cargarDataInit(url_uap_superv);
             function createFeatureLayer(url_sed_superv){
                 let layer_sed_superv = new FeatureLayer({
                     url: url_sed_superv,
@@ -100,12 +100,29 @@ require([
                 layer_sed_superv.queryFeatures(query).then(results => {
                     // prints the array of features to the console
                     quantityRecords = results.features.length;
-                    if (results.features.length == 0) {                    
+                    if (results.features.length == 0) {
                         return;
                     }
                     zoomToLayer(results);
                 });
             }
+
+            function filterFeatureTramoLayer(layer_sed_superv){
+                const query = new Query();
+                query.where = where;
+                query.outSpatialReference = { wkid: 4326 };
+                query.returnGeometry = true;
+                query.outFields = ["*"];
+                layer_sed_superv.queryFeatures(query).then(results => {
+                    // prints the array of features to the console
+                    quantityRecords = results.features.length;
+                    console.log("quantityRecords : " + quantityRecords + " , " + layer_sed_superv.url);
+                    if (results.features.length == 0) {
+                        return;
+                    }
+                });
+            }
+
             function zoomToLayer(results){
                 var point = results.features[0];
                 view.goTo({
@@ -123,23 +140,28 @@ require([
                     })
                 });
             }
+            function createLegendTramo(url_tramo_superv){
+                let $div = $("#legend");
+                $.getJSON(url_tramo_superv+"?f=json", function( data ) {
+                    console.log(data);
+                    $div.append("<span> "+quantityRecords+"</span>");
+                    /*data.drawingInfo.renderer.uniqueValueInfos.forEach( data => {
+                        $div.append("<img src=data:"+data.symbol.contentType+";base64,"+data.symbol.imageData+">");
+                    })*/
+                });
+            }
+
+            function cargarDataInit(_globalidor){
+                let query = new QueryTask({url: url_sed_superv}); 
+                let params  = new Query();
+                params.returnGeometry = false;
+                params.outFields = ["*"];
+                params.where = `1=1`;
+                params.returnDistinctValues = true;
+                query.execute(params).then(function(response){
+                    console.log(response.features);
+                });
+            }
+
         });
-
-        function cargarDataInit(_globalidor){
-            let query = new QueryTask({url: url_sed_superv}); 
-            let params  = new Query();
-            params.returnGeometry = false;
-            params.outFields = ["*"];
-            params.where = `1=1`;
-            params.returnDistinctValues = true;
-            query.execute(params).then(function(response){
-                console.log(response.features);
-            });
-        }
     });
-
-/*function mostrarDepartamento(glob){
-    console.log(glob.split('=')[1]);
-    $('#div-departamento').text("MOQUEGUA");
-}*/
-

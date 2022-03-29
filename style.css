@@ -1,10 +1,3 @@
-/*html, body, #map {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-}*/
-
 .contenedor {
 	width: 100%;
 	height: 100vh;
@@ -13,7 +6,6 @@
 .cabecera{
 	width: 100%;
 	height: 5vh;
-	/*background: red;*/
 }
 
 .cabecera-izquierda{
@@ -30,7 +22,6 @@
 
 .cabecera-derecha{
 	width: 50%;
-	/*display: table;*/
 	height: 5vh;
 	float: right;
 	background: green;
@@ -61,12 +52,10 @@
 .contenedor-mapa{ 
 	width: 100%;
 	height: 93vh;
-	/*background: blue;*/
 }
 
 .mapa{
 	width: 85%;
-	/*background: red;*/
 	float: left;
 	height: 93vh;
 	padding: 12px;
@@ -74,7 +63,6 @@
 
 .descripcion-mapa{
 	width: 15%;
-	/*background: beige;*/
 	float: right;
 	height: 93vh;
 	padding: 12px;
