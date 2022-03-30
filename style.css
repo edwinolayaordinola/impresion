@@ -1,11 +1,30 @@
 .contenedor {
-	width: 100%;
+	width: 99.5%;
 	height: 100vh;
+}
+
+.cabecera-superior{
+	width: 100%;
+	height: 6vh;
+	background: #114692;
+}
+
+.cabecera-superior-imagen{
+	width: 220px;
+	height: 6vh;
+}
+
+.cabecera-superior-titulo{
+	text-align: center;
+	padding-left: 25%;
+	color: white;
 }
 
 .cabecera{
 	width: 100%;
-	height: 5vh;
+	height: 4vh;
+	background: #b2dbfb;
+
 }
 
 .cabecera-izquierda{
@@ -13,23 +32,19 @@
 	display: table;
 	height: 5vh;
 	float: left;
-	background: purple;
 	text-align: center;
 	padding-bottom: 15px;
 	margin-bottom: 10px;
-	background: #E1FCFF;
 }
 
 .cabecera-derecha{
 	width: 50%;
 	height: 5vh;
 	float: right;
-	background: green;
 	display: flex;
   	justify-content: center;
 	padding-bottom: 5px;
 	margin-bottom: 10px;
-	background: #E1FCFF;
 }
 
 .div-departamento{
@@ -43,29 +58,26 @@
 	vertical-align: middle;
 }
 
-.imagen-descargar{
-	width: 15px;
-	padding-top: 8px;
-	cursor: pointer;
-}
-
 .contenedor-mapa{ 
 	width: 100%;
-	height: 93vh;
+	height: 86vh;
 }
 
 .mapa{
 	width: 85%;
 	float: left;
-	height: 93vh;
-	padding: 12px;
+	height: 86vh;
+	/*padding: 6px;*/
+	border: 4px solid black;
+	margin-left: 3px;
+	margin-right: 3px;
 }
 
 .descripcion-mapa{
-	width: 15%;
+	width: 14%;
 	float: right;
-	height: 93vh;
-	padding: 12px;
+	height: 86vh;
+	padding: 6px;
 }
 
 .contenido-descripcion-mapa{

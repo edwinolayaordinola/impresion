@@ -42,20 +42,20 @@ require([
             let urlparams= window.location.search;
             _globalidor = urlparams.substring(1);
             codsed = _globalidor.split('=')[1];
-            /*urlUtils.addProxyRule({
+            urlUtils.addProxyRule({
                 urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
                 proxyUrl: _proxyurl
-            });*/
+            });
             //// URL DE WEB SERVICES
             /*servicio protegio */
-            /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
+            url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
-            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/arcgis/rest/services/BD_SupervUAP_agol_3/FeatureServer/3";*/
+            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";
             /**servicio abierto */
-            url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/0";
+            /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/2";
-            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/3";
-            
+            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/3";*/
+            //cargarDataInit(url_sed_superv);
             // DEFINICIÓN DE FEATURE LAYERS 
             let where = "CODSED = '" + codsed + "'";
 
@@ -69,13 +69,13 @@ require([
             map.add(layer_tramo_superv);
             map.add(layer_uap_superv);
             $("#item-png").click(function(){
-                generateDownload({extension:".png", format:"png", title:"reporte"});
+                generateDownload({extension:".png", format:"png", title:"ReporteGeneralDeficiencias"});
             });
             $("#item-jpg").click(function(){                
-                generateDownload({extension:".jpg", format:"jpg", title:"reporte"});
+                generateDownload({extension:".jpg", format:"jpg", title:"ReporteGeneralDeficiencias"});
             });
             $("#item-pdf").click(function(){
-                generateDownload({extension:".pdf", format:"PDF", title:"reporte"});                
+                generateDownload({extension:".pdf", format:"PDF", title:"ReporteGeneralDeficiencias"});
             });
             function createFeatureLayer(url_sed_superv){
                 let layer_sed_superv = new FeatureLayer({
@@ -107,11 +107,12 @@ require([
                 var point = results.features[0];
                 view.goTo({
                     center: [point.geometry.x, point.geometry.y],
-                    zoom: 12
+                    zoom: 18
                 });
             }
-            function createLegend(url_sed_superv, quantity){                
-                $.getJSON(url_sed_superv+"?f=json", function( data ) {
+            function createLegend(url_sed_superv, quantity){
+                $.getJSON(_proxyurl+"?"+url_sed_superv+"?f=json", function( data ) {
+                //$.getJSON(url_sed_superv+"?f=json", function( data ) {
                     let renderer = data.drawingInfo.renderer;
                     let $divLegend = $("#legend");
                     let $div = $divLegend.append("<div class='row mt-2'></div>");
@@ -121,7 +122,8 @@ require([
                         $div.append("<span><img class='image-legend' src=data:"+renderer.symbol.contentType+";base64,"+renderer.symbol.imageData+"></span>");
                     else if (renderer.type =="uniqueValue")
                         renderer.uniqueValueInfos.forEach( data2 => {
-                            $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+"></span>");
+                            console.log(data2);
+                            $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+">"+data2.value+"</span>");
                         })
                     else if (renderer.type =="simple" && renderer.symbol.type == "esriSLS")
                         $div.append("<span></span>");
@@ -136,7 +138,7 @@ require([
                 let $mapClone = $('#map').clone().insertBefore($('#map'));
                 $canvas = $mapClone.find('canvas');
                 let $image = $('<img class="img-fluid" />').insertBefore($canvas);
-                $image.attr("src", image);                
+                $image.attr("src", image);
                 this.setTimeout(() => {
                     let $container = $('body').find(`#${_mapId}`);
                     if ($container.length === 0)
@@ -149,14 +151,14 @@ require([
                             $('#map').css("cssText", style);
                             $mapClone.remove();
                             if (options.extension != ".pdf")
-                                generateImage(options);                            
+                                generateImage(options);
                             else 
                                 generatePDF(options);
                         }).catch(error => {
                             $mapClone.remove();
                         });
                     }, 1000);
-                }, 100);                
+                }, 100);
             }
             function generatePDF(options){
                 html2canvas(options.container.find('>div'), {
@@ -188,7 +190,7 @@ require([
                         document.body.removeChild(a);
                         options.container.remove();
                     }
-                });                
+                });
             }
             function createMap($container, parameters) {
                 let paper = { width: 210, height: 297, enabled: true };
@@ -214,5 +216,18 @@ require([
                 options.$container = $container;
                 return Promise.resolve(options);
             }
+
+            /*function cargarDataInit(_globalidor){
+                console.log("init");
+                let query = new QueryTask({url: url_sed_superv}); 
+                let params  = new Query();
+                params.returnGeometry = false;
+                params.outFields = ["*"];
+                params.where = `1=1`;
+                params.returnDistinctValues = true;
+                query.execute(params).then(function(response){
+                    console.log(response.features);
+                });
+            }*/
         });
     });
