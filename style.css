@@ -86,3 +86,13 @@
 	width:50px;
 	height:50px;
 }
+
+.div-legend-parcial{
+	width: 15%;
+	background-color: white;
+}
+
+.div-legend-total{
+	width: 85%;
+	background-color: white;
+}

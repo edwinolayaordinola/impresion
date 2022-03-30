@@ -29,37 +29,7 @@ require([
         _globalidor = '';
         let codsed = '';
         _proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
-        $(document).ready(function(){
-
-            $("#item-png").click(function(){
-                html2canvas($('#map'), {  
-                    onrendered: function (canvas) {
-                        var canvasImg = canvas.toDataURL("image/png");
-                        const a = document.createElement('a');
-                        a.style.display = 'none';
-                        a.href = canvasImg;
-                        a.download = 'reporte.png';
-                        document.body.appendChild(a);
-                        a.click();
-                    }
-                });
-            });
-            $("#item-jpg").click(function(){
-                html2canvas($('#map'), {
-                    onrendered: function (canvas) {
-                        var canvasImg = canvas.toDataURL("image/jpg");
-                        const a = document.createElement('a');
-                        a.style.display = 'none';
-                        a.href = canvasImg;
-                        a.download = 'reporte.jpg';
-                        document.body.appendChild(a);
-                        a.click();
-                    }
-                });
-            });
-            $("#item-pdf").click(function(){
-                alert("En implementación")
-            });
+        $(document).ready(function(){            
             map = new Map({
                 basemap: "hybrid"
             });            
@@ -98,6 +68,15 @@ require([
             map.add(layer_sed_superv);
             map.add(layer_tramo_superv);
             map.add(layer_uap_superv);
+            $("#item-png").click(function(){
+                generateDownload({extension:".png", format:"png", title:"reporte"});
+            });
+            $("#item-jpg").click(function(){                
+                generateDownload({extension:".jpg", format:"jpg", title:"reporte"});
+            });
+            $("#item-pdf").click(function(){
+                generateDownload({extension:".pdf", format:"PDF", title:"reporte"});                
+            });
             function createFeatureLayer(url_sed_superv){
                 let layer_sed_superv = new FeatureLayer({
                     url: url_sed_superv,
@@ -148,6 +127,92 @@ require([
                         $div.append("<span></span>");
                 });
             }
-            
+            function generateDownload(options){
+                let style = $('#map').attr("style");
+                let _mapId = "xxxxxxxxxxxxx";
+                let canvas = $('#map').find('canvas')[0];
+                let image = canvas.toDataURL("image/jpeg", 1);
+                let $canvas = $('#map').find('canvas');
+                let $mapClone = $('#map').clone().insertBefore($('#map'));
+                $canvas = $mapClone.find('canvas');
+                let $image = $('<img class="img-fluid" />').insertBefore($canvas);
+                $image.attr("src", image);                
+                this.setTimeout(() => {
+                    let $container = $('body').find(`#${_mapId}`);
+                    if ($container.length === 0)
+                        $container = $(`<div id="${_mapId}"></div>`).appendTo($('body'));
+                    $container.addClass("position-absolute");
+                    $container.css({ opacity: 0.1 });
+                    options.container = $container;
+                    this.setTimeout(() => {
+                        createMap($container, {map: image}).then(data => {
+                            $('#map').css("cssText", style);
+                            $mapClone.remove();
+                            if (options.extension != ".pdf")
+                                generateImage(options);                            
+                            else 
+                                generatePDF(options);
+                        }).catch(error => {
+                            $mapClone.remove();
+                        });
+                    }, 1000);
+                }, 100);                
+            }
+            function generatePDF(options){
+                html2canvas(options.container.find('>div'), {
+                    onrendered: function (canvas) {
+                        var canvasImg = canvas.toDataURL("image/jpg");
+                        let pdf = new jsPDF({
+                            orientation: 'l'
+                        });
+                        let width = pdf.internal.pageSize.getWidth();
+                        let height = pdf.internal.pageSize.getHeight();
+                        var img = new Image();
+                        img.src = canvasImg;
+                        pdf.addImage(img, 'png', 0, 0, width, height);
+                        pdf.save(`${options.title}.pdf`);
+                        return true;
+                    }
+                });
+            }
+            function generateImage(options){
+                html2canvas(options.container.find('>div'), {
+                    onrendered: function (canvas) {
+                        var canvasImg = canvas.toDataURL("image/"+options.format);
+                        const a = document.createElement('a');
+                        document.body.appendChild(a);
+                        a.style.display = 'none';
+                        a.href = canvasImg;
+                        a.download = options.title+options.extension;
+                        a.click();
+                        document.body.removeChild(a);
+                        options.container.remove();
+                    }
+                });                
+            }
+            function createMap($container, parameters) {
+                let paper = { width: 210, height: 297, enabled: true };
+                let width = Math.round((paper.width / 25.4) * 96);
+                let height = Math.round((paper.height / 25.4) * 96);
+                let widthContainer = width;
+                let heightContainer = height;
+                widthContainer = height + 300;
+                heightContainer = width + 100;
+                let options = { title: 'Mapa', keywords: 'Mapa, Osinergmin', orientation: 0, paper: 'paperId', format: 'format' };
+                $container.css({ width: widthContainer, height: heightContainer });
+                $container.addClass("d-flex justify-content-center align-items-center");
+                $container.empty();
+                widthContainer = widthContainer - (10 * 2);
+                heightContainer = heightContainer - (10 * 2);
+                let $dom = $('<div class="position-relative row"></div>').appendTo($container);
+                $dom.css({ width: widthContainer, height: heightContainer });
+                let $div = $('<div class="div-legend-total"></div>').appendTo($dom);
+                let $img = $('<img crossorigin="anonymous" class="img-fluid" />').appendTo($div);
+                let $div2 = $('<div class="div-legend-parcial">'+ $('#legend').clone().html() +'</div>').appendTo($dom);
+                $img.css({ width: $dom.outerWidth(true), height: $dom.outerHeight(true) });
+                $img.attr("src", parameters.map);
+                options.$container = $container;
+                return Promise.resolve(options);
+            }
         });
     });
