@@ -3,7 +3,6 @@ let url_sed_superv = "";
 let url_tramo_superv = "";
 let url_uap_superv = "";
 
-
 require([
     "esri/core/urlUtils",
     "esri/Map",
@@ -27,12 +26,13 @@ require([
         ) => {
 
         _globalidor = '';
-        let codsed = '';
+        let codsed = '', id_or='',nombreOficina='';
+
         _proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
-        $(document).ready(function(){            
+        $(document).ready(function(){
             map = new Map({
                 basemap: "hybrid"
-            });            
+            });
             view = new MapView({
                 container: "map",
                 map: map,
@@ -41,7 +41,10 @@ require([
             });
             let urlparams= window.location.search;
             _globalidor = urlparams.substring(1);
-            codsed = _globalidor.split('=')[1];
+            _globalidor = _globalidor.split("&");
+            codsed = _globalidor[0].split('=')[1];
+            id_or = _globalidor[1].split('=')[1];
+            $("#div-departamento").text(getNombre(parseInt(id_or)));
             urlUtils.addProxyRule({
                 urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
                 proxyUrl: _proxyurl
@@ -122,7 +125,6 @@ require([
                         $div.append("<span><img class='image-legend' src=data:"+renderer.symbol.contentType+";base64,"+renderer.symbol.imageData+"></span>");
                     else if (renderer.type =="uniqueValue")
                         renderer.uniqueValueInfos.forEach( data2 => {
-                            console.log(data2);
                             $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+">"+data2.value+"</span>");
                         })
                     else if (renderer.type =="simple" && renderer.symbol.type == "esriSLS")
