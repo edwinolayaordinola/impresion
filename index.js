@@ -32,13 +32,33 @@ require([
         $(document).ready(function(){
 
             $("#item-png").click(function(){
-                console.log("png");
+                html2canvas($('#map'), {  
+                    onrendered: function (canvas) {
+                        var canvasImg = canvas.toDataURL("image/png");
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = canvasImg;
+                        a.download = 'reporte.png';
+                        document.body.appendChild(a);
+                        a.click();
+                    }
+                });
             });
             $("#item-jpg").click(function(){
-                console.log("jpg");
+                html2canvas($('#map'), {
+                    onrendered: function (canvas) {
+                        var canvasImg = canvas.toDataURL("image/jpg");
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = canvasImg;
+                        a.download = 'reporte.jpg';
+                        document.body.appendChild(a);
+                        a.click();
+                    }
+                });
             });
             $("#item-pdf").click(function(){
-                console.log("pdf");
+                alert("En implementación")
             });
             map = new Map({
                 basemap: "hybrid"
@@ -57,7 +77,6 @@ require([
                 proxyUrl: _proxyurl
             });*/
             //// URL DE WEB SERVICES
-            let quantityRecords=0;
             /*servicio protegio */
             /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
@@ -73,15 +92,12 @@ require([
             let layer_sed_superv = createFeatureLayer(url_sed_superv);
             let layer_tramo_superv = createFeatureLayer(url_tramo_superv);
             let layer_uap_superv = createFeatureLayer(url_uap_superv);
-            filterFeatureLayer(layer_sed_superv);
-            filterFeatureTramoLayer(layer_tramo_superv);
-            filterFeatureLayer(layer_uap_superv);
+            filterFeatureLayer(layer_sed_superv, url_sed_superv, 1);
+            filterFeatureLayer(layer_tramo_superv, url_tramo_superv);
+            filterFeatureLayer(layer_uap_superv, url_uap_superv);
             map.add(layer_sed_superv);
             map.add(layer_tramo_superv);
             map.add(layer_uap_superv);
-            createLegend(url_sed_superv);
-            createLegendTramo(url_tramo_superv);
-            //cargarDataInit(url_uap_superv);
             function createFeatureLayer(url_sed_superv){
                 let layer_sed_superv = new FeatureLayer({
                     url: url_sed_superv,
@@ -91,7 +107,7 @@ require([
                 });
                 return layer_sed_superv;
             }
-            function filterFeatureLayer(layer_sed_superv){
+            function filterFeatureLayer(layer_sed_superv, url, index){
                 const query = new Query();
                 query.where = where;
                 query.outSpatialReference = { wkid: 4326 };
@@ -100,29 +116,14 @@ require([
                 layer_sed_superv.queryFeatures(query).then(results => {
                     // prints the array of features to the console
                     quantityRecords = results.features.length;
+                    createLegend(url, quantityRecords);
                     if (results.features.length == 0) {
                         return;
                     }
-                    zoomToLayer(results);
+                    if (index == 1)
+                        zoomToLayer(results);
                 });
             }
-
-            function filterFeatureTramoLayer(layer_sed_superv){
-                const query = new Query();
-                query.where = where;
-                query.outSpatialReference = { wkid: 4326 };
-                query.returnGeometry = true;
-                query.outFields = ["*"];
-                layer_sed_superv.queryFeatures(query).then(results => {
-                    // prints the array of features to the console
-                    quantityRecords = results.features.length;
-                    console.log("quantityRecords : " + quantityRecords + " , " + layer_sed_superv.url);
-                    if (results.features.length == 0) {
-                        return;
-                    }
-                });
-            }
-
             function zoomToLayer(results){
                 var point = results.features[0];
                 view.goTo({
@@ -130,38 +131,23 @@ require([
                     zoom: 12
                 });
             }
-            function createLegend(url_sed_superv){
-                let $div = $("#legend");
+            function createLegend(url_sed_superv, quantity){                
                 $.getJSON(url_sed_superv+"?f=json", function( data ) {
-                    console.log(data);
-                    $div.append("<span> "+quantityRecords+"</span>");
-                    data.drawingInfo.renderer.uniqueValueInfos.forEach( data => {
-                        $div.append("<img src=data:"+data.symbol.contentType+";base64,"+data.symbol.imageData+">");
-                    })
+                    let renderer = data.drawingInfo.renderer;
+                    let $divLegend = $("#legend");
+                    let $div = $divLegend.append("<div class='row mt-2'></div>");
+                    $div = $div.find('>div:last');
+                    $div.append("<span> "+ data.name +" ("+quantity+") </span>");
+                    if (renderer.type =="simple" && renderer.symbol.type != "esriSLS")
+                        $div.append("<span><img class='image-legend' src=data:"+renderer.symbol.contentType+";base64,"+renderer.symbol.imageData+"></span>");
+                    else if (renderer.type =="uniqueValue")
+                        renderer.uniqueValueInfos.forEach( data2 => {
+                            $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+"></span>");
+                        })
+                    else if (renderer.type =="simple" && renderer.symbol.type == "esriSLS")
+                        $div.append("<span></span>");
                 });
             }
-            function createLegendTramo(url_tramo_superv){
-                let $div = $("#legend");
-                $.getJSON(url_tramo_superv+"?f=json", function( data ) {
-                    console.log(data);
-                    $div.append("<span> "+quantityRecords+"</span>");
-                    /*data.drawingInfo.renderer.uniqueValueInfos.forEach( data => {
-                        $div.append("<img src=data:"+data.symbol.contentType+";base64,"+data.symbol.imageData+">");
-                    })*/
-                });
-            }
-
-            function cargarDataInit(_globalidor){
-                let query = new QueryTask({url: url_sed_superv}); 
-                let params  = new Query();
-                params.returnGeometry = false;
-                params.outFields = ["*"];
-                params.where = `1=1`;
-                params.returnDistinctValues = true;
-                query.execute(params).then(function(response){
-                    console.log(response.features);
-                });
-            }
-
+            
         });
     });
