@@ -29,6 +29,7 @@ require([
         let codsed = '', id_or='',nombreOficina='';
 
         _proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
+        _proxyurl = "";
         $(document).ready(function(){
             map = new Map({
                 basemap: "hybrid"
@@ -45,29 +46,47 @@ require([
             codsed = _globalidor[0].split('=')[1];
             id_or = _globalidor[1].split('=')[1];
             $("#div-departamento").text(getNombre(parseInt(id_or)));
-            urlUtils.addProxyRule({
+            /*comentar para desarrollo */
+            /*urlUtils.addProxyRule({
                 urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
                 proxyUrl: _proxyurl
-            });
+            });*/
+            
             //// URL DE WEB SERVICES
-            /*servicio protegio */
+             /*servicio protegio */
             url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
             url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";
             /**servicio abierto */
-            /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/0";
+            url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/2";
-            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/3";*/
-            //cargarDataInit(url_sed_superv);
+            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/3";
+            //cargarDataInit(url_sed_superv);           
+            let layerSed = {
+                index: 0,
+                url : url_sed_superv,
+                title: "SED"
+            };
+            let layerTramo = {
+                index: 1,
+                url : url_tramo_superv,
+                title: "TRAMO"
+            };
+            let layerUAP = {
+                index: 2,
+                url : url_uap_superv,
+                title: "UAP"
+            };            
             // DEFINICIÓN DE FEATURE LAYERS 
             let where = "CODSED = '" + codsed + "'";
-
-            let layer_sed_superv = createFeatureLayer(url_sed_superv);
-            let layer_tramo_superv = createFeatureLayer(url_tramo_superv);
-            let layer_uap_superv = createFeatureLayer(url_uap_superv);
-            filterFeatureLayer(layer_sed_superv, url_sed_superv, 1);
-            filterFeatureLayer(layer_tramo_superv, url_tramo_superv);
-            filterFeatureLayer(layer_uap_superv, url_uap_superv);
+            //where = "ID_LUMINARIA = '27356'";
+            console.log(where);
+            let layer_sed_superv = createFeatureLayer(layerSed);
+            let layer_tramo_superv = createFeatureLayer(layerTramo);
+            let layer_uap_superv = createFeatureLayer(layerUAP);
+            filterFeatureLayer(layer_sed_superv, layerSed.url);
+            filterFeatureLayer(layer_tramo_superv, layerTramo.url);
+            filterFeatureLayer(layer_uap_superv, layerUAP.url);
             map.add(layer_sed_superv);
             map.add(layer_tramo_superv);
             map.add(layer_uap_superv);
@@ -80,29 +99,42 @@ require([
             $("#item-pdf").click(function(){
                 generateDownload({extension:".pdf", format:"PDF", title:"ReporteGeneralDeficiencias"});
             });
-            function createFeatureLayer(url_sed_superv){
-                let layer_sed_superv = new FeatureLayer({
-                    url: url_sed_superv,
-                    title: "SED",
+            function createFeatureLayer(layer){
+                let featureLayer = new FeatureLayer({
+                    url: layer.url,
+                    title: layer.title,
+                    index: layer.index,
+                    uurl:layer.url,
                     outFields: ["*"],
                     definitionExpression: where
                 });
-                return layer_sed_superv;
+                return featureLayer;
             }
-            function filterFeatureLayer(layer_sed_superv, url, index){
+            function filterFeatureLayer(layer){
                 const query = new Query();
                 query.where = where;
                 query.outSpatialReference = { wkid: 4326 };
                 query.returnGeometry = true;
                 query.outFields = ["*"];
-                layer_sed_superv.queryFeatures(query).then(results => {
+                layer.queryFeatures(query).then(results => {
                     // prints the array of features to the console
+                    let values = {};
+                    if (layer.index == 2) {
+                        results.features.forEach(feature => {
+                            let value = values[feature.attributes["ESTADODEFICIENCIA"]];
+                            if (value)
+                                values[feature.attributes["ESTADODEFICIENCIA"]] = values[feature.attributes["ESTADODEFICIENCIA"]]+1;
+                            else 
+                                values[feature.attributes["ESTADODEFICIENCIA"]] = 1;                  
+                        });
+                    }
                     quantityRecords = results.features.length;
-                    createLegend(url, quantityRecords);
+                    quantityRecords = layer.index == 2 ? quantityRecords : 0;
+                    createLegend(layer, quantityRecords, values);
                     if (results.features.length == 0) {
                         return;
                     }
-                    if (index == 1)
+                    if (layer.index == 0)
                         zoomToLayer(results);
                 });
             }
@@ -113,20 +145,23 @@ require([
                     zoom: 18
                 });
             }
-            function createLegend(url_sed_superv, quantity){
-                $.getJSON(_proxyurl+"?"+url_sed_superv+"?f=json", function( data ) {
-                //$.getJSON(url_sed_superv+"?f=json", function( data ) {
+            function createLegend(layer, quantity, values){
+                _proxyurl = !_proxyurl.endsWith("?") ? _proxyurl : _proxyurl+"?";
+                $.getJSON(_proxyurl+layer.uurl+"?f=json", data => {
                     let renderer = data.drawingInfo.renderer;
                     let $divLegend = $("#legend");
                     let $div = $divLegend.append("<div class='row mt-2'></div>");
                     $div = $div.find('>div:last');
-                    $div.append("<span> "+ data.name +" ("+quantity+") </span>");
+                    let quantityText = quantity > 0 ? "("+quantity+")" : "";
+                    $div.append("<span> "+ layer.title +" "+quantityText+" </span>");
                     if (renderer.type =="simple" && renderer.symbol.type != "esriSLS")
                         $div.append("<span><img class='image-legend' src=data:"+renderer.symbol.contentType+";base64,"+renderer.symbol.imageData+"></span>");
-                    else if (renderer.type =="uniqueValue")
+                    else if (renderer.type =="uniqueValue") {
                         renderer.uniqueValueInfos.forEach( data2 => {
-                            $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+">"+data2.value+"</span>");
+                            let value = values[data2.value] || 0;
+                            $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+">"+data2.label+" ("+value+")</span>");
                         })
+                    }
                     else if (renderer.type =="simple" && renderer.symbol.type == "esriSLS")
                         $div.append("<span></span>");
                 });
