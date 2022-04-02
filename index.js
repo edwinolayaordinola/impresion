@@ -208,8 +208,9 @@ require([
                         let height = pdf.internal.pageSize.getHeight();
                         var img = new Image();
                         img.src = canvasImg;
-                        pdf.addImage(img, 'png', 0, 0, width, height);
+                        pdf.addImage(img, 'png', -10, 0, 310, height);
                         pdf.save(`${options.title}.pdf`);
+                        options.container.remove();
                         return true;
                     }
                 });
@@ -235,7 +236,7 @@ require([
                 let height = Math.round((paper.height / 25.4) * 96);
                 let widthContainer = width;
                 let heightContainer = height;
-                widthContainer = height + 300;
+                widthContainer = height + 600;
                 heightContainer = width + 100;
                 let options = { title: 'Mapa', keywords: 'Mapa, Osinergmin', orientation: 0, paper: 'paperId', format: 'format' };
                 $container.css({ width: widthContainer, height: heightContainer });
