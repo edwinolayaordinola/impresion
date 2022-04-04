@@ -34,7 +34,7 @@ require([
         ) => {
 
         _proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
-        _proxyurl = "";
+        //_proxyurl = "";
         $(document).ready(function(){
             map = new Map({
                 basemap: "osm"
@@ -52,24 +52,23 @@ require([
 
             //*URL DE WEB SERVICES*/
             /*servicio protegio */
-            /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
+            //url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
             /*comentar para desarrollo */
-            /*urlUtils.addProxyRule({
+            urlUtils.addProxyRule({
                 urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
                 proxyUrl: _proxyurl
-            });*/
+            });
             
             //// URL DE WEB SERVICES
              /*servicio protegio */
-            /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
+            url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
-            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";*/
+            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";
             /**servicio abierto */
             url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/2";
             url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/3";
             where = "ID_OR = '" + id_or + "'";
-            //cargarDataInit(url_sed_superv);
             let layerSed = {
                 index: 0,
                 url : url_sed_superv,
@@ -122,7 +121,6 @@ require([
                 let _codseds = [];
                 let htmlSelect ="<option value=''>Seleccione</option>";
                 layer_sed_superv.queryFeatures(query).then(results => {
-                    console.log(results);
                     results.features.forEach(data=>{
                         if(_codseds.indexOf(data.attributes.CODSED)<0){
                             _codseds.push(data.attributes.CODSED)
@@ -154,7 +152,6 @@ require([
                 query.outFields = ["*"];                                
                 layer.queryFeatures(query).then(results => {
                     // prints the array of features to the console
-                    console.log(results.features);
                     let values = {};
                     if (layer.index == 2) {
                         results.features.forEach(feature => {
@@ -182,7 +179,6 @@ require([
                 query.returnGeometry = true;
                 query.outFields = ["*"];
                 layer.queryFeatures(query).then(results => {
-                    console.log(results);
                     layer.definitionExpression = _where;
                     let values = {};
                     if (layer.index == 2) {
