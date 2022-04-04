@@ -97,7 +97,9 @@
 .cod-sed{
 	width: 100%;
 	height: 5vh;
-	margin: 0 auto;
+	display: flex;
+	justify-content: center;
+	font-weight: bold;
 }
 
 .descripcion-mapa{

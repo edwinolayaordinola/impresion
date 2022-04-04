@@ -98,7 +98,7 @@ require([
             $("#selectedCodSed").change(function(){
                 clearLeyend();
                 codsed  = $("#selectedCodSed").val();
-                $("#codigoSed").html("Código de SED :" + codsed);
+                $("#codigoSed").html("Código de SED : " + codsed);
                 filtro_codsed = " CODSED = '" + codsed + "'";
                 filterFeatureCodSedLayer(layer_sed_superv, filtro_codsed);
                 filterFeatureCodSedLayer(layer_tramo_superv, filtro_codsed);
