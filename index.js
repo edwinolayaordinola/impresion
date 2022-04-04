@@ -181,6 +181,7 @@ require([
                 query.returnGeometry = true;
                 query.outFields = ["*"];
                 layer.queryFeatures(query).then(results => {
+                    console.log(results);
                     layer.definitionExpression = _where;
                     let values = {};
                     if (layer.index == 2) {
@@ -199,11 +200,11 @@ require([
                         return;
                     }
                     if (layer.index == 0)
-                        zoomToLayer(results);
+                        zoomToLayer(results, 17);
                 });
             }
             function zoomToLayer(results, _zoom){
-                _zoom = _zoom || 12;
+                _zoom = _zoom || 9;
                 var point = results.features[0];
                 view.goTo({
                     center: [point.geometry.x, point.geometry.y],
