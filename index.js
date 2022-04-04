@@ -96,35 +96,21 @@ require([
             map.add(layer_tramo_superv);
             map.add(layer_uap_superv);
             llenarSelect(layer_sed_superv);
-
             $("#selectedCodSed").change(function(){
-                //layer_sed_superv.visible = false;
-                //layer_tramo_superv.visible = false;
-                //layer_uap_superv.visible = false;
                 codsed  = $("#selectedCodSed").val();
                 filtro_codsed = " CODSED = '" + codsed + "'";
-                //where = " CODSED = '" + codsed + "'";
-                //let layer_codsed = {
-                //    index : 3,
-                //    url : url_uap_superv,
-                //    title: "CODSED"
-                //};
-                //layer_uap_codsed_superv = createFeatureLayer(layer_codsed);
                 filterFeatureCodSedLayer(layer_sed_superv, filtro_codsed);
                 filterFeatureCodSedLayer(layer_tramo_superv, filtro_codsed);
                 filterFeatureCodSedLayer(layer_uap_superv, filtro_codsed);
-                //map.add(layer_uap_codsed_superv);
             });
             $("#item-png").click(function(){
                 generateDownload({extension:".png", format:"png", title:"reporte_general_deficiencias"});
             });
             $("#item-jpg").click(function(){
-                //generateDownload({extension:".jpg", format:"jpg", title:"ReporteGeneralDeficiencias"});
                 generateDownload({extension:".jpg", format:"jpg", title:"reporte_general_deficiencias"});
             });
             $("#item-pdf").click(function(){
                 generateDownload({extension:".pdf", format:"PDF", title:"reporte_general_deficiencias"});
-                //generateDownloadHtml2pdf();
             });
             function llenarSelect(layer_sed_superv){
                 const query = new Query();
@@ -132,6 +118,7 @@ require([
                 //query.outSpatialReference = { wkid: 4326 };
                 query.returnGeometry = false;
                 query.outFields = ["*"];
+                query.orderByFields = ["CODSED"];
                 let _codseds = [];
                 let htmlSelect ="<option value=''>Seleccione</option>";
                 layer_sed_superv.queryFeatures(query).then(results => {
@@ -158,37 +145,6 @@ require([
                 });
                 return featureLayer;
             }
-
-            //function createFeatureCodsedLayer(url_codsed_superv,_where){
-            //    layer_codsed_superv = new FeatureLayer({
-            //        url: url_codsed_superv,
-            //        title: "CODSED",
-            //        outFields: ["*"],
-            //        definitionExpression: _where
-            //    });
-            //    return layer_codsed_superv;
-            //}
-            //function llenarSelect(layer_sed_superv, _where){
-            //    const query = new Query();
-            //    query.where = _where;
-            //    query.outSpatialReference = { wkid: 4326 };
-            //    query.returnGeometry = true;
-            //    query.outFields = ["*"];
-            //    let _codseds = [];
-            //    let htmlSelect ="<option value=''>Seleccione</option>";
-            //    layer_sed_superv.queryFeatures(query).then(results => {
-            //        results.features.forEach(data=>{
-            //            if(_codseds.indexOf(data.attributes.CODSED)<0){
-            //                _codseds.push(data.attributes.CODSED)
-            //            };
-            //        });
-            //        _codseds.forEach(elemento=>{
-            //            htmlSelect += "<option value='"+elemento+"'>"+elemento+"</option>";
-            //        });
-            //        $("#selectedCodSed").html(htmlSelect);
-            //    });
-            //}
-            //function filterFeatureLayer(layer_sed_superv, url, index,_where){
 
             function filterFeatureLayer(layer){
                 const query = new Query();
@@ -225,6 +181,7 @@ require([
                 query.returnGeometry = true;
                 query.outFields = ["*"];
                 layer.queryFeatures(query).then(results => {
+                    layer.definitionExpression = _where;
                     let values = {};
                     if (layer.index == 2) {
                         results.features.forEach(feature => {
@@ -253,27 +210,6 @@ require([
                     zoom: _zoom
                 });
             }
-            //function filterFeatureCodSedLayer(layer_codsed_superv, url, _where){
-            //    const query = new Query();
-            //    query.where = _where;
-            //    query.outSpatialReference = { wkid: 4326 };
-            //    query.returnGeometry = true;
-            //    query.outFields = ["*"];
-            //    layer_codsed_superv.queryFeatures(query).then(results => {
-            //        results.features.forEach(data=>{
-            //            console.log(data.attributes.CODSED);
-            //        });
-            //        // prints the array of features to the console
-            //        quantityRecords = results.features.length;
-            //        //createLegend(url, quantityRecords);
-            //        if (results.features.length == 0) {
-            //            return;
-            //        }
-            //        zoomToLayer(results,8);
-            //        /*if (layer.index == 0)
-            //            zoomToLayer(results);*/
-            //    });
-            //}
             function createLegend(layer, quantity, values){
                 $("#legend").empty();
                 _proxyurl = !_proxyurl.endsWith("?") ? _proxyurl : _proxyurl+"?";
@@ -384,7 +320,6 @@ require([
                 $img.attr("src", parameters.map);
                 options.$container = $container;
                 return Promise.resolve(options);
-            }
-            
+            }            
         });
     });
