@@ -96,6 +96,7 @@ require([
             map.add(layer_uap_superv);
             llenarSelect(layer_sed_superv);
             $("#selectedCodSed").change(function(){
+                clearLeyend();
                 codsed  = $("#selectedCodSed").val();
                 filtro_codsed = " CODSED = '" + codsed + "'";
                 filterFeatureCodSedLayer(layer_sed_superv, filtro_codsed);
@@ -114,7 +115,6 @@ require([
             function llenarSelect(layer_sed_superv){
                 const query = new Query();
                 query.where = where;
-                //query.outSpatialReference = { wkid: 4326 };
                 query.returnGeometry = false;
                 query.outFields = ["*"];
                 query.orderByFields = ["CODSED"];
@@ -143,7 +143,6 @@ require([
                 });
                 return featureLayer;
             }
-
             function filterFeatureLayer(layer){
                 const query = new Query();
                 query.where = where;
@@ -197,7 +196,7 @@ require([
                         return;
                     }
                     if (layer.index == 0)
-                        zoomToLayer(results, 17);
+                        zoomToLayer(results, 18);
                 });
             }
             function zoomToLayer(results, _zoom){
@@ -209,9 +208,7 @@ require([
                 });
             }
             function createLegend(layer, quantity, values){
-                $("#legend").empty();
                 _proxyurl = !_proxyurl.endsWith("?") ? _proxyurl : _proxyurl+"?";
-                //$.getJSON(_proxyurl+"?"+url_sed_superv+"?f=json", function( data ) {
                 $.getJSON(_proxyurl+layer.uurl+"?f=json", data => {
                     let renderer = data.drawingInfo.renderer;
                     let $divLegend = $("#legend");
@@ -222,6 +219,20 @@ require([
                     if (renderer.type =="simple" && renderer.symbol.type != "esriSLS")
                         $div.append("<span><img class='image-legend' src=data:"+renderer.symbol.contentType+";base64,"+renderer.symbol.imageData+"></span>");
                     else if (renderer.type =="uniqueValue") {
+                        if (renderer.defaultSymbol) {
+                            let value = 0;
+                            if (values[null])
+                                value = values[null];
+                            else
+                                value = values[renderer.field1] || 0;
+                            if (renderer.defaultSymbol.type == "esriPMS" ){
+                                $div.append("<span><img class='image-legend' src=data:"+renderer.defaultSymbol.contentType+";base64,"+renderer.defaultSymbol.imageData+">"+renderer.defaultLabel+" ("+value+")</span>");
+                            }
+                            else if (renderer.defaultSymbol.type == "esriSMS" ){
+                                //$div.append("<span><img class='image-legend' src="+_createMarkerLegend(renderer.defaultSymbol)+">"+renderer.defaultLabel+" ("+value+")</span>");
+                                $div.append("<span>"+_createMarkerLegend(renderer.defaultSymbol)+" "+renderer.defaultLabel+" ("+value+")</span>");
+                            }
+                        }
                         renderer.uniqueValueInfos.forEach( data2 => {
                             let value = values[data2.value] || 0;
                             $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+">"+data2.label+" ("+value+")</span>");
@@ -318,6 +329,42 @@ require([
                 $img.attr("src", parameters.map);
                 options.$container = $container;
                 return Promise.resolve(options);
-            }            
+            }
+            function clearLeyend(){
+                $("#legend").empty();
+            }
+            function _createStrokeLegend(symbol) {
+                let canvas = document.createElement("canvas");
+                canvas.width = symbol.width;
+                canvas.height = symbol.height;
+                let context = canvas.getContext("2d");
+                context.beginPath();
+                //context.fillStyle = `rgb(${rgb.join(',')})`;
+                context.strokeStyle = `rgb(${symbol.color.join(',')})`;
+                context.lineWidth = canvas.width;
+                context.moveTo(0, 0);
+                context.lineTo(symbol.width, 0);
+                context.stroke();
+                let data = canvas.toDataURL();
+                canvas.remove();
+                return data;
+            }
+            function _createMarkerLegend(symbol) {
+                let canvas = document.createElement("canvas");
+                canvas.width = symbol.width;
+                canvas.height = symbol.height;
+                let context = canvas.getContext("2d");
+                context.fillStyle = `rgb(${symbol.color.join(',')})`;
+                context.strokeStyle = `rgb(${symbol.outline.color.join(',')})`;
+                context.lineWidth = symbol.outline.width * 2;
+                context.beginPath();
+                context.arc(canvas.width / 2, canvas.height / 2, symbol.size * 1, 0, Math.PI * 2, false);
+                context.fill();
+                context.stroke();
+                let data = canvas.toDataURL();
+                canvas.remove();
+                //console.log(data);
+                return canvas;
+            }
         });
     });
