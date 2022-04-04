@@ -10,61 +10,45 @@
 	<!--<script src="html2pdf.bundle.min.js"></script>-->
 </head>
 <body class="">
-	<div class="container-fluid">
-		<div class="row cabecera">
-			<div class="col-xs-12 col-sm-2 justify-content-center text-white">
-				<img src="imagenes/osinergmin.png" class="cabecera-superior-imagen" />
-			</div>
-			<div class="col-xs-12 col-sm-3 pt-3 justify-content-center text-white">
-				<label>REPORTE GENERAL DE DEFICIENCIAS</label>
-			</div>
-			<div class="col-xs-12 col-sm-3 pt-3 justify-content-center text-white">
+	<div class="contenedor">
+		<div class="cabecera-superior">
+			<img src="imagenes/osinergmin.png" class="cabecera-superior-imagen">
+			<label class="cabecera-superior-titulo">REPORTE GENERAL DE DEFICIENCIAS</label>
+		</div>
+		<div class="cabecera">
+			<div class="cabecera-izquierda">
+				<br>
 				<div id="div-departamento" class="div-departamento"></div>
 			</div>
-			<div class="col-xs-12 col-sm-2 pt-3 justify-content-center text-white">
-				<table style="width: 100%;padding: 0px;margin: 0px;">
-					<tr>
-						<td>
-							<label style="color: white;">CODSED </label>
-						</td>
-						<td>
-							<select id="selectedCodSed" class="form-select" style="display: inline;" aria-label="Default select">
-								<option value="0">Seleccione</option>
-								<option value="612">612</option>
-							</select>
-						</td>
-					</tr>
-				</table>
+			<div class="cabecera-centro">
+				<select id="selectedCodSed" class="form-select" style="display: inline;" aria-label="Default select"></select>
 			</div>
-			<div  class="col-xs-12 col-sm-2 pt-3 justify-content-center text-white">
-				<nav class="navbar navbar-expand">
-					<div class="container-fluid">
-						<div class="collapse navbar-collapse" id="navbarSupportedContent">
-							<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-								<li class="nav-item dropdown">
-									<img src="imagenes/download-solid.svg" 
-										style="width: 35px; height: 100%; cursor: pointer;" 
-										class="nav-link dropdown-toggle  text-white"
-										role="button" 
-										data-bs-toggle="dropdown" 
-										aria-expanded="false"
-									/>
-									<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-										<li><a class="dropdown-item" id="item-png" href="#">PNG</a></li>
-										<li><a class="dropdown-item" id="item-jpg" href="#">JPG</a></li>
-										<li><a class="dropdown-item" id="item-pdf" href="#">PDF</a></li>
-									</ul>
-								</li>
-							</ul>
+			<div class="cabecera-derecha">
+				
+				<div class="div-descargar" id="descargar">
+					<nav class="navbar navbar-expand">
+						<div class="container-fluid">
+							<div class="collapse navbar-collapse" id="navbarSupportedContent">
+								<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+									<li class="nav-item dropdown">
+										<img src="imagenes/download-solid.svg" style="width: 35px; height: 100%; cursor: pointer;" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+										<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+											<li><a class="dropdown-item" id="item-png" href="#">PNG</a></li>
+											<li><a class="dropdown-item" id="item-jpg" href="#">JPG</a></li>
+											<li><a class="dropdown-item" id="item-pdf" href="#">PDF</a></li>
+										</ul>
+									</li>
+								</ul>
+							</div>
 						</div>
-					</div>
-				</nav>
+					</nav>
+				</div>
 			</div>
 		</div>
-		<div class="row contenedor-mapa" id="contenedor-mapa">
-			<div class="col-xs-12 col-sm-10" id="map">
+		<div class="contenedor-mapa">
+			<div class="mapa" id="map">
 			</div>
-			<div class="col-xs-12 col-sm-2 pt-3 bg-white">
+			<div class="descripcion-mapa">
 				<h6>Leyenda</h6>
 				<div id="legend">
 				</div>

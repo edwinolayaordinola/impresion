@@ -68,13 +68,6 @@ require([
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/2";
             url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/3";
             where = "ID_OR = '" + id_or + "'";
-            layer_sed_superv = createFeatureLayer(url_sed_superv,where);
-            layer_tramo_superv = createFeatureLayer(url_tramo_superv,where);
-            layer_uap_superv = createFeatureLayer(url_uap_superv,where);
-            llenarSelect(layer_sed_superv, where);
-            filterFeatureLayer(layer_sed_superv, url_sed_superv, 0,where);
-            filterFeatureLayer(layer_tramo_superv, url_tramo_superv,0,where);
-            filterFeatureLayer(layer_uap_superv, url_uap_superv,0,where);
             //cargarDataInit(url_sed_superv);
             let layerSed = {
                 index: 0,
@@ -90,8 +83,7 @@ require([
                 index: 2,
                 url : url_uap_superv,
                 title: "UAP"
-            };    
-            where = "ID_OR = '" + id_or + "'";
+            };
             // DEFINICIÓN DE FEATURE LAYERS
             layer_sed_superv = createFeatureLayer(layerSed);
             layer_tramo_superv = createFeatureLayer(layerTramo);
@@ -102,7 +94,7 @@ require([
             map.add(layer_sed_superv);
             map.add(layer_tramo_superv);
             map.add(layer_uap_superv);
-            llenarSelect(layer_sed_superv, where);
+            llenarSelect(layer_sed_superv);
 
             $("#selectedCodSed").change(function(){
                 layer_sed_superv.visible = false;
@@ -118,10 +110,6 @@ require([
                 };
                 layer_uap_codsed_superv = createFeatureLayer(layer_codsed);
                 filterFeatureCodSedLayer(layer_uap_codsed_superv, url_uap_superv,where);
-                map.add(layer_uap_codsed_superv); 
-                
-                layer_uap_codsed_superv = createFeatureCodsedLayer(url_uap_superv,filtro_codsed);
-                filterFeatureCodSedLayer(layer_uap_codsed_superv, url_uap_superv, 1,filtro_codsed);
                 map.add(layer_uap_codsed_superv);
             });
             $("#item-png").click(function(){
@@ -135,9 +123,9 @@ require([
                 generateDownload({extension:".pdf", format:"PDF", title:"reporte_general_deficiencias"});
                 //generateDownloadHtml2pdf();
             });
-            function llenarSelect(layer_sed_superv, _where){
+            function llenarSelect(layer_sed_superv){
                 const query = new Query();
-                query.where = _where;
+                query.where = where;
                 query.outSpatialReference = { wkid: 4326 };
                 query.returnGeometry = true;
                 query.outFields = ["*"];
@@ -162,7 +150,7 @@ require([
                     index: layer.index,
                     uurl:layer.url,
                     outFields: ["*"],
-                    definitionExpression: _where
+                    definitionExpression: where
                 });
                 return featureLayer;
             }
@@ -200,7 +188,7 @@ require([
 
             function filterFeatureLayer(layer){
                 const query = new Query();
-                query.where = _where;
+                query.where = where;
                 query.outSpatialReference = { wkid: 4326 };
                 query.returnGeometry = true;
                 query.outFields = ["*"];                                
