@@ -85,7 +85,7 @@
 }
 
 .contenido-mapa{
-	width: 85%;
+	width: 75%;
 	float: left;
 	height: 84vh;
 	padding: 6px;
@@ -103,7 +103,7 @@
 }
 
 .descripcion-mapa{
-	width: 14%;
+	width: 24%;
 	float: right;
 	height: 79vh;
 	/*padding: 6px;*/

@@ -289,7 +289,7 @@ require([
                         var img = new Image();
                         img.src = canvasImg;
                         //pdf.addImage(img, 'png', -10, 0, 310, height);
-                        pdf.addImage(img, 'png', 0, 0, 310, height);
+                        pdf.addImage(img, 'png', 0, 0, 270, height);
                         pdf.save(`${options.title}.pdf`);
                         options.container.remove();
                         return true;
