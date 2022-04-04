@@ -34,7 +34,7 @@ require([
         ) => {
 
         _proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
-        //_proxyurl = "";
+        _proxyurl = "";
         $(document).ready(function(){
             map = new Map({
                 basemap: "osm"
@@ -54,16 +54,16 @@ require([
             /*servicio protegio */
             //url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
             /*comentar para desarrollo */
-            urlUtils.addProxyRule({
+            /*urlUtils.addProxyRule({
                 urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
                 proxyUrl: _proxyurl
-            });
+            });*/
             
             //// URL DE WEB SERVICES
              /*servicio protegio */
-            url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
+            /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
-            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";
+            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";*/
             /**servicio abierto */
             url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/2";
@@ -98,6 +98,7 @@ require([
             $("#selectedCodSed").change(function(){
                 clearLeyend();
                 codsed  = $("#selectedCodSed").val();
+                $("#codigoSed").html("Código de SED :" + codsed);
                 filtro_codsed = " CODSED = '" + codsed + "'";
                 filterFeatureCodSedLayer(layer_sed_superv, filtro_codsed);
                 filterFeatureCodSedLayer(layer_tramo_superv, filtro_codsed);
@@ -148,7 +149,7 @@ require([
                 query.where = where;
                 query.outSpatialReference = { wkid: 4326 };
                 query.returnGeometry = true;
-                query.outFields = ["*"];                                
+                query.outFields = ["*"];
                 layer.queryFeatures(query).then(results => {
                     // prints the array of features to the console
                     let values = {};
@@ -158,7 +159,7 @@ require([
                             if (value)
                                 values[feature.attributes["ESTADODEFICIENCIA"]] = values[feature.attributes["ESTADODEFICIENCIA"]]+1;
                             else 
-                                values[feature.attributes["ESTADODEFICIENCIA"]] = 1;                  
+                                values[feature.attributes["ESTADODEFICIENCIA"]] = 1;
                         });
                     }
                     quantityRecords = results.features.length;
@@ -186,7 +187,7 @@ require([
                             if (value)
                                 values[feature.attributes["ESTADODEFICIENCIA"]] = values[feature.attributes["ESTADODEFICIENCIA"]]+1;
                             else 
-                                values[feature.attributes["ESTADODEFICIENCIA"]] = 1;                  
+                                values[feature.attributes["ESTADODEFICIENCIA"]] = 1;
                         });
                     }
                     quantityRecords = results.features.length;
@@ -209,6 +210,7 @@ require([
             }
             function createLegend(layer, quantity, values){
                 _proxyurl = !_proxyurl.endsWith("?") ? _proxyurl : _proxyurl+"?";
+                //_proxyurl = _proxyurl+"?";
                 $.getJSON(_proxyurl+layer.uurl+"?f=json", data => {
                     let renderer = data.drawingInfo.renderer;
                     let $divLegend = $("#legend");
