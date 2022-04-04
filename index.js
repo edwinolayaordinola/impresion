@@ -328,7 +328,7 @@ require([
                 let $dom = $('<div class="position-relative row"></div>').appendTo($container);
                 $dom.css({ width: widthContainer, height: heightContainer });
                 let $div = $('<div class="div-legend-total"></div>').appendTo($dom);
-                let $div333 = $('<div class="row">'+ $('#codigoSed').clone().html() +'</div>').appendTo($div);
+                let $div333 = $('<div class="row cod-sed">'+ $('#codigoSed').clone().html() +'</div>').appendTo($div);
                 let $img = $('<img crossorigin="anonymous" class="img-fluid" />').appendTo($div);
                 let $div2 = $('<div class="div-legend-parcial">'+ $('#legend').clone().html() +'</div>').appendTo($dom);
                 $img.css({ width: $dom.outerWidth(true), height: $dom.outerHeight(true) });
