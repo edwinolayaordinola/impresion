@@ -7,6 +7,8 @@ let layer_uap_codsed_superv = "";
 let layer_sed_superv = "";
 let layer_tramo_superv = "";
 let layer_uap_superv = "";
+let _globalidor = "",codsed = "", id_or="";
+let layer_codsed  ="";
 
 require([
     "esri/core/urlUtils",
@@ -30,9 +32,6 @@ require([
         Ground
         ) => {
 
-        _globalidor = '';
-        let codsed = '', id_or='',nombreOficina='';
-
         _proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
         _proxyurl = "";
         $(document).ready(function(){
@@ -49,6 +48,10 @@ require([
             _globalidor = urlparams.substring(1);
             id_or = _globalidor.split('=')[1];
             $("#div-departamento").text(getNombre(parseInt(id_or)));
+
+            //*URL DE WEB SERVICES*/
+            /*servicio protegio */
+            /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
             /*comentar para desarrollo */
             /*urlUtils.addProxyRule({
                 urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
@@ -57,14 +60,22 @@ require([
             
             //// URL DE WEB SERVICES
              /*servicio protegio */
-            url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
+            /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
-            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";
+            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";*/
             /**servicio abierto */
             url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/2";
             url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/3";
-            //cargarDataInit(url_sed_superv);           
+            where = "ID_OR = '" + id_or + "'";
+            layer_sed_superv = createFeatureLayer(url_sed_superv,where);
+            layer_tramo_superv = createFeatureLayer(url_tramo_superv,where);
+            layer_uap_superv = createFeatureLayer(url_uap_superv,where);
+            llenarSelect(layer_sed_superv, where);
+            filterFeatureLayer(layer_sed_superv, url_sed_superv, 0,where);
+            filterFeatureLayer(layer_tramo_superv, url_tramo_superv,0,where);
+            filterFeatureLayer(layer_uap_superv, url_uap_superv,0,where);
+            //cargarDataInit(url_sed_superv);
             let layerSed = {
                 index: 0,
                 url : url_sed_superv,
@@ -92,6 +103,7 @@ require([
             map.add(layer_tramo_superv);
             map.add(layer_uap_superv);
             llenarSelect(layer_sed_superv, where);
+
             $("#selectedCodSed").change(function(){
                 layer_sed_superv.visible = false;
                 layer_tramo_superv.visible = false;
@@ -108,15 +120,20 @@ require([
                 filterFeatureCodSedLayer(layer_uap_codsed_superv, url_uap_superv,where);
                 map.add(layer_uap_codsed_superv); 
                 
+                layer_uap_codsed_superv = createFeatureCodsedLayer(url_uap_superv,filtro_codsed);
+                filterFeatureCodSedLayer(layer_uap_codsed_superv, url_uap_superv, 1,filtro_codsed);
+                map.add(layer_uap_codsed_superv);
             });
             $("#item-png").click(function(){
-                generateDownload({extension:".png", format:"png", title:"ReporteGeneralDeficiencias"});
+                generateDownload({extension:".png", format:"png", title:"reporte_general_deficiencias"});
             });
             $("#item-jpg").click(function(){
-                generateDownload({extension:".jpg", format:"jpg", title:"ReporteGeneralDeficiencias"});
+                //generateDownload({extension:".jpg", format:"jpg", title:"ReporteGeneralDeficiencias"});
+                generateDownload({extension:".jpg", format:"jpg", title:"reporte_general_deficiencias"});
             });
             $("#item-pdf").click(function(){
-                generateDownload({extension:".pdf", format:"PDF", title:"ReporteGeneralDeficiencias"});
+                generateDownload({extension:".pdf", format:"PDF", title:"reporte_general_deficiencias"});
+                //generateDownloadHtml2pdf();
             });
             function llenarSelect(layer_sed_superv, _where){
                 const query = new Query();
@@ -145,16 +162,48 @@ require([
                     index: layer.index,
                     uurl:layer.url,
                     outFields: ["*"],
-                    definitionExpression: where
+                    definitionExpression: _where
                 });
                 return featureLayer;
             }
-            function filterFeatureLayer(layer){
+
+            function createFeatureCodsedLayer(url_codsed_superv,_where){
+                layer_codsed_superv = new FeatureLayer({
+                    url: url_codsed_superv,
+                    title: "CODSED",
+                    outFields: ["*"],
+                    definitionExpression: _where
+                });
+                return layer_codsed_superv;
+            }
+            function llenarSelect(layer_sed_superv, _where){
                 const query = new Query();
-                query.where = where;
+                query.where = _where;
                 query.outSpatialReference = { wkid: 4326 };
                 query.returnGeometry = true;
                 query.outFields = ["*"];
+                let _codseds = [];
+                let htmlSelect ="<option value=''>Seleccione</option>";
+                layer_sed_superv.queryFeatures(query).then(results => {
+                    results.features.forEach(data=>{
+                        if(_codseds.indexOf(data.attributes.CODSED)<0){
+                            _codseds.push(data.attributes.CODSED)
+                        };
+                    });
+                    _codseds.forEach(elemento=>{
+                        htmlSelect += "<option value='"+elemento+"'>"+elemento+"</option>";
+                    });
+                    $("#selectedCodSed").html(htmlSelect);
+                });
+            }
+            //function filterFeatureLayer(layer_sed_superv, url, index,_where){
+
+            function filterFeatureLayer(layer){
+                const query = new Query();
+                query.where = _where;
+                query.outSpatialReference = { wkid: 4326 };
+                query.returnGeometry = true;
+                query.outFields = ["*"];                                
                 layer.queryFeatures(query).then(results => {
                     // prints the array of features to the console
                     let values = {};
@@ -177,11 +226,38 @@ require([
                         zoomToLayer(results);
                 });
             }
-            function zoomToLayer(results){
+
+
+            function filterFeatureCodSedLayer(layer_codsed_superv, url, index,_where){
+                const query = new Query();
+                query.where = _where;
+                query.outSpatialReference = { wkid: 4326 };
+                query.returnGeometry = true;
+                query.outFields = ["*"];
+                layer_codsed_superv.queryFeatures(query).then(results => {
+                    results.features.forEach(data=>{
+                        console.log(data.attributes.CODSED);
+                    });
+                    // prints the array of features to the console
+                    quantityRecords = results.features.length;
+                    //createLegend(url, quantityRecords);
+                    if (results.features.length == 0) {
+                        return;
+                    }
+                    if (index == 1){
+                        zoomToLayer(results,18);
+                    } else{
+                        zoomToLayer(results,8);
+                    }
+                    if (layer.index == 0)
+                        zoomToLayer(results);
+                });
+            }
+            function zoomToLayer(results, _zoom){
                 var point = results.features[0];
                 view.goTo({
                     center: [point.geometry.x, point.geometry.y],
-                    zoom: 18
+                    zoom: _zoom
                 });
             }
             function filterFeatureCodSedLayer(layer_codsed_superv, url, _where){
@@ -207,6 +283,7 @@ require([
             }
             function createLegend(layer, quantity, values){
                 _proxyurl = !_proxyurl.endsWith("?") ? _proxyurl : _proxyurl+"?";
+                //$.getJSON(_proxyurl+"?"+url_sed_superv+"?f=json", function( data ) {
                 $.getJSON(_proxyurl+layer.uurl+"?f=json", data => {
                     let renderer = data.drawingInfo.renderer;
                     let $divLegend = $("#legend");
@@ -314,5 +391,6 @@ require([
                 options.$container = $container;
                 return Promise.resolve(options);
             }
+            
         });
     });
