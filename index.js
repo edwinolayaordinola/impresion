@@ -198,6 +198,7 @@ require([
                 query.outFields = ["*"];                                
                 layer.queryFeatures(query).then(results => {
                     // prints the array of features to the console
+                    console.log(results.features);
                     let values = {};
                     if (layer.index == 2) {
                         results.features.forEach(feature => {
