@@ -2,6 +2,13 @@ let map, view;
 let url_sed_superv = "";
 let url_tramo_superv = "";
 let url_uap_superv = "";
+let _globalidor = "",codsed = "", id_or="";
+let where = "", filtro_codsed="";
+let layer_sed_superv = "";
+let layer_tramo_superv = "";
+let layer_uap_superv = "";
+let layer_codsed  ="";
+let layer_uap_codsed_superv = "";
 
 require([
     "esri/core/urlUtils",
@@ -25,13 +32,15 @@ require([
         Ground
         ) => {
 
-        _globalidor = '';
-        let codsed = '', id_or='',nombreOficina='';
-
         _proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
         $(document).ready(function(){
+
+            /*urlUtils.addProxyRule({
+                urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
+                proxyUrl: _proxyurl
+            });*/
             map = new Map({
-                basemap: "hybrid"
+                basemap: "osm"
             });
             view = new MapView({
                 container: "map",
@@ -41,81 +50,143 @@ require([
             });
             let urlparams= window.location.search;
             _globalidor = urlparams.substring(1);
-            _globalidor = _globalidor.split("&");
-            codsed = _globalidor[0].split('=')[1];
-            id_or = _globalidor[1].split('=')[1];
+            id_or = _globalidor.split('=')[1];
             $("#div-departamento").text(getNombre(parseInt(id_or)));
-            urlUtils.addProxyRule({
-                urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
-                proxyUrl: _proxyurl
-            });
-            //// URL DE WEB SERVICES
+            //*URL DE WEB SERVICES*/
             /*servicio protegio */
-            url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
+            /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
-            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";
+            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";*/
             /**servicio abierto */
-            /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/0";
+            url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/2";
-            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/3";*/
-            //cargarDataInit(url_sed_superv);
-            // DEFINICIÓN DE FEATURE LAYERS 
-            let where = "CODSED = '" + codsed + "'";
-
-            let layer_sed_superv = createFeatureLayer(url_sed_superv);
-            let layer_tramo_superv = createFeatureLayer(url_tramo_superv);
-            let layer_uap_superv = createFeatureLayer(url_uap_superv);
-            filterFeatureLayer(layer_sed_superv, url_sed_superv, 1);
-            filterFeatureLayer(layer_tramo_superv, url_tramo_superv);
-            filterFeatureLayer(layer_uap_superv, url_uap_superv);
+            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/3";
+            where = "ID_OR = '" + id_or + "'";
+            layer_sed_superv = createFeatureLayer(url_sed_superv,where);
+            layer_tramo_superv = createFeatureLayer(url_tramo_superv,where);
+            layer_uap_superv = createFeatureLayer(url_uap_superv,where);
+            llenarSelect(layer_sed_superv, where);
+            filterFeatureLayer(layer_sed_superv, url_sed_superv, 0,where);
+            filterFeatureLayer(layer_tramo_superv, url_tramo_superv,0,where);
+            filterFeatureLayer(layer_uap_superv, url_uap_superv,0,where);
             map.add(layer_sed_superv);
             map.add(layer_tramo_superv);
             map.add(layer_uap_superv);
-            $("#item-png").click(function(){
-                generateDownload({extension:".png", format:"png", title:"ReporteGeneralDeficiencias"});
+            $("#selectedCodSed").change(function(){
+                layer_sed_superv.visible = false;
+                layer_tramo_superv.visible = false;
+                layer_uap_superv.visible = false;
+                codsed  = $("#selectedCodSed").val();
+                filtro_codsed = " CODSED = '" + codsed + "'";
+                layer_uap_codsed_superv = createFeatureCodsedLayer(url_uap_superv,filtro_codsed);
+                filterFeatureCodSedLayer(layer_uap_codsed_superv, url_uap_superv, 1,filtro_codsed);
+                map.add(layer_uap_codsed_superv);
+                //layer_codsed_superv.visible = true;
+                
+                
             });
-            $("#item-jpg").click(function(){                
-                generateDownload({extension:".jpg", format:"jpg", title:"ReporteGeneralDeficiencias"});
+            $("#item-png").click(function(){
+                generateDownload({extension:".png", format:"png", title:"reporte_general_deficiencias"});
+            });
+            $("#item-jpg").click(function(){
+                generateDownload({extension:".jpg", format:"jpg", title:"reporte_general_deficiencias"});
             });
             $("#item-pdf").click(function(){
-                generateDownload({extension:".pdf", format:"PDF", title:"ReporteGeneralDeficiencias"});
+                generateDownload({extension:".pdf", format:"PDF", title:"reporte_general_deficiencias"});
+                //generateDownloadHtml2pdf();
             });
-            function createFeatureLayer(url_sed_superv){
+            function createFeatureLayer(url_sed_superv,_where){
                 let layer_sed_superv = new FeatureLayer({
                     url: url_sed_superv,
                     title: "SED",
                     outFields: ["*"],
-                    definitionExpression: where
+                    definitionExpression: _where
                 });
                 return layer_sed_superv;
             }
-            function filterFeatureLayer(layer_sed_superv, url, index){
+            function createFeatureCodsedLayer(url_codsed_superv,_where){
+                layer_codsed_superv = new FeatureLayer({
+                    url: url_codsed_superv,
+                    title: "CODSED",
+                    outFields: ["*"],
+                    definitionExpression: _where
+                });
+                return layer_codsed_superv;
+            }
+            function llenarSelect(layer_sed_superv, _where){
                 const query = new Query();
-                query.where = where;
+                query.where = _where;
+                query.outSpatialReference = { wkid: 4326 };
+                query.returnGeometry = true;
+                query.outFields = ["*"];
+                let _codseds = [];
+                let htmlSelect ="<option value=''>Seleccione</option>";
+                layer_sed_superv.queryFeatures(query).then(results => {
+                    results.features.forEach(data=>{
+                        if(_codseds.indexOf(data.attributes.CODSED)<0){
+                            _codseds.push(data.attributes.CODSED)
+                        };
+                    });
+                    _codseds.forEach(elemento=>{
+                        htmlSelect += "<option value='"+elemento+"'>"+elemento+"</option>";
+                    });
+                    $("#selectedCodSed").html(htmlSelect);
+                });
+            }
+            function filterFeatureLayer(layer_sed_superv, url, index,_where){
+                const query = new Query();
+                query.where = _where;
                 query.outSpatialReference = { wkid: 4326 };
                 query.returnGeometry = true;
                 query.outFields = ["*"];
                 layer_sed_superv.queryFeatures(query).then(results => {
+                    console.log(results.features);
                     // prints the array of features to the console
                     quantityRecords = results.features.length;
                     createLegend(url, quantityRecords);
                     if (results.features.length == 0) {
                         return;
                     }
-                    if (index == 1)
-                        zoomToLayer(results);
+                    if (index == 1){
+                        zoomToLayer(results,18);
+                    } else{
+                        zoomToLayer(results,8);
+                    }
                 });
             }
-            function zoomToLayer(results){
+            function filterFeatureCodSedLayer(layer_codsed_superv, url, index,_where){
+                const query = new Query();
+                query.where = _where;
+                query.outSpatialReference = { wkid: 4326 };
+                query.returnGeometry = true;
+                query.outFields = ["*"];
+                layer_codsed_superv.queryFeatures(query).then(results => {
+                    results.features.forEach(data=>{
+                        console.log(data.attributes.CODSED);
+                    });
+                    // prints the array of features to the console
+                    quantityRecords = results.features.length;
+                    //createLegend(url, quantityRecords);
+                    if (results.features.length == 0) {
+                        return;
+                    }
+                    if (index == 1){
+                        zoomToLayer(results,18);
+                    } else{
+                        zoomToLayer(results,8);
+                    }
+                });
+            }
+            function zoomToLayer(results, _zoom){
                 var point = results.features[0];
                 view.goTo({
                     center: [point.geometry.x, point.geometry.y],
-                    zoom: 18
+                    zoom: _zoom
                 });
             }
             function createLegend(url_sed_superv, quantity){
-                $.getJSON(_proxyurl+"?"+url_sed_superv+"?f=json", function( data ) {
-                //$.getJSON(url_sed_superv+"?f=json", function( data ) {
+                //$.getJSON(_proxyurl+"?"+url_sed_superv+"?f=json", function( data ) {
+                $.getJSON(url_sed_superv+"?f=json", function( data ) {
                     let renderer = data.drawingInfo.renderer;
                     let $divLegend = $("#legend");
                     let $div = $divLegend.append("<div class='row mt-2'></div>");
@@ -217,6 +288,37 @@ require([
                 $img.attr("src", parameters.map);
                 options.$container = $container;
                 return Promise.resolve(options);
+            }
+
+            function generateDownloadHtml2pdf(){
+                console.log("generateDownloadHtml2pdf");
+                var elemento = document.getElementById("contenedor-mapa");
+                html2pdf()
+                        .set({
+                            margin : 1,
+                            filename : 'documento.pdf',
+                            image : {
+                                type: 'jpeg',
+                                quality : 0.98
+                            },
+                            html2canvas : {
+                                scale : 3,
+                                letterRendering : true
+                            },
+                            jsPDF : {
+                                unit : 'in',
+                                format : 'a3',
+                                orientation : 'landscape'
+                            }
+                        })
+                        .from(elemento)
+                        .save()
+                        .catch(err=>console.log(err))
+                        .finally()
+                        .then(()=>{
+                            console.log("guardado!");
+                        });
+
             }
 
             /*function cargarDataInit(_globalidor){
