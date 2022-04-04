@@ -28,9 +28,19 @@
 }
 
 .cabecera-izquierda{
-	width: 50%;
+	width: 30%;
 	display: table;
-	height: 5vh;
+	height: 7vh;
+	float: left;
+	text-align: center;
+	padding-bottom: 15px;
+	margin-bottom: 10px;
+}
+
+.cabecera-centro{
+	width: 30%;
+	display: table;
+	height: 7vh;
 	float: left;
 	text-align: center;
 	padding-bottom: 15px;
@@ -38,8 +48,8 @@
 }
 
 .cabecera-derecha{
-	width: 50%;
-	height: 5vh;
+	width: 30%;
+	height: 7vh;
 	float: right;
 	display: flex;
   	justify-content: center;
@@ -60,13 +70,13 @@
 
 .contenedor-mapa{ 
 	width: 100%;
-	height: 86vh;
+	height: 84vh;
 }
 
 .mapa{
 	width: 85%;
 	float: left;
-	height: 86vh;
+	height: 84vh;
 	/*padding: 6px;*/
 	border: 4px solid black;
 	margin-left: 3px;
@@ -76,7 +86,7 @@
 .descripcion-mapa{
 	width: 14%;
 	float: right;
-	height: 86vh;
+	height: 84vh;
 	padding: 6px;
 }
 

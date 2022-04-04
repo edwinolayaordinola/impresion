@@ -2,6 +2,11 @@ let map, view;
 let url_sed_superv = "";
 let url_tramo_superv = "";
 let url_uap_superv = "";
+let where = "";
+let layer_uap_codsed_superv = "";
+let layer_sed_superv = "";
+let layer_tramo_superv = "";
+let layer_uap_superv = "";
 
 require([
     "esri/core/urlUtils",
@@ -32,7 +37,7 @@ require([
         _proxyurl = "";
         $(document).ready(function(){
             map = new Map({
-                basemap: "hybrid"
+                basemap: "osm"
             });
             view = new MapView({
                 container: "map",
@@ -42,9 +47,7 @@ require([
             });
             let urlparams= window.location.search;
             _globalidor = urlparams.substring(1);
-            _globalidor = _globalidor.split("&");
-            codsed = _globalidor[0].split('=')[1];
-            id_or = _globalidor[1].split('=')[1];
+            id_or = _globalidor.split('=')[1];
             $("#div-departamento").text(getNombre(parseInt(id_or)));
             /*comentar para desarrollo */
             /*urlUtils.addProxyRule({
@@ -76,29 +79,65 @@ require([
                 index: 2,
                 url : url_uap_superv,
                 title: "UAP"
-            };            
-            // DEFINICIÓN DE FEATURE LAYERS 
-            let where = "CODSED = '" + codsed + "'";
-            //where = "ID_LUMINARIA = '27356'";
-            console.log(where);
-            let layer_sed_superv = createFeatureLayer(layerSed);
-            let layer_tramo_superv = createFeatureLayer(layerTramo);
-            let layer_uap_superv = createFeatureLayer(layerUAP);
+            };    
+            where = "ID_OR = '" + id_or + "'";
+            // DEFINICIÓN DE FEATURE LAYERS
+            layer_sed_superv = createFeatureLayer(layerSed);
+            layer_tramo_superv = createFeatureLayer(layerTramo);
+            layer_uap_superv = createFeatureLayer(layerUAP);
             filterFeatureLayer(layer_sed_superv, layerSed.url);
             filterFeatureLayer(layer_tramo_superv, layerTramo.url);
             filterFeatureLayer(layer_uap_superv, layerUAP.url);
             map.add(layer_sed_superv);
             map.add(layer_tramo_superv);
             map.add(layer_uap_superv);
+            llenarSelect(layer_sed_superv, where);
+            $("#selectedCodSed").change(function(){
+                layer_sed_superv.visible = false;
+                layer_tramo_superv.visible = false;
+                layer_uap_superv.visible = false;
+                codsed  = $("#selectedCodSed").val();
+                filtro_codsed = " CODSED = '" + codsed + "'";
+                where = filtro_codsed;
+                let layer_codsed = {
+                    index : 3,
+                    url : url_uap_superv,
+                    title: "CODSED"
+                };
+                layer_uap_codsed_superv = createFeatureLayer(layer_codsed);
+                filterFeatureCodSedLayer(layer_uap_codsed_superv, url_uap_superv,where);
+                map.add(layer_uap_codsed_superv); 
+                
+            });
             $("#item-png").click(function(){
                 generateDownload({extension:".png", format:"png", title:"ReporteGeneralDeficiencias"});
             });
-            $("#item-jpg").click(function(){                
+            $("#item-jpg").click(function(){
                 generateDownload({extension:".jpg", format:"jpg", title:"ReporteGeneralDeficiencias"});
             });
             $("#item-pdf").click(function(){
                 generateDownload({extension:".pdf", format:"PDF", title:"ReporteGeneralDeficiencias"});
             });
+            function llenarSelect(layer_sed_superv, _where){
+                const query = new Query();
+                query.where = _where;
+                query.outSpatialReference = { wkid: 4326 };
+                query.returnGeometry = true;
+                query.outFields = ["*"];
+                let _codseds = [];
+                let htmlSelect ="<option value=''>Seleccione</option>";
+                layer_sed_superv.queryFeatures(query).then(results => {
+                    results.features.forEach(data=>{
+                        if(_codseds.indexOf(data.attributes.CODSED)<0){
+                            _codseds.push(data.attributes.CODSED)
+                        };
+                    });
+                    _codseds.forEach(elemento=>{
+                        htmlSelect += "<option value='"+elemento+"'>"+elemento+"</option>";
+                    });
+                    $("#selectedCodSed").html(htmlSelect);
+                });
+            }
             function createFeatureLayer(layer){
                 let featureLayer = new FeatureLayer({
                     url: layer.url,
@@ -143,6 +182,27 @@ require([
                 view.goTo({
                     center: [point.geometry.x, point.geometry.y],
                     zoom: 18
+                });
+            }
+            function filterFeatureCodSedLayer(layer_codsed_superv, url, _where){
+                const query = new Query();
+                query.where = _where;
+                query.outSpatialReference = { wkid: 4326 };
+                query.returnGeometry = true;
+                query.outFields = ["*"];
+                layer_codsed_superv.queryFeatures(query).then(results => {
+                    results.features.forEach(data=>{
+                        console.log(data.attributes.CODSED);
+                    });
+                    // prints the array of features to the console
+                    quantityRecords = results.features.length;
+                    //createLegend(url, quantityRecords);
+                    if (results.features.length == 0) {
+                        return;
+                    }
+                    zoomToLayer(results,8);
+                    /*if (layer.index == 0)
+                        zoomToLayer(results);*/
                 });
             }
             function createLegend(layer, quantity, values){
@@ -254,18 +314,5 @@ require([
                 options.$container = $container;
                 return Promise.resolve(options);
             }
-
-            /*function cargarDataInit(_globalidor){
-                console.log("init");
-                let query = new QueryTask({url: url_sed_superv}); 
-                let params  = new Query();
-                params.returnGeometry = false;
-                params.outFields = ["*"];
-                params.where = `1=1`;
-                params.returnDistinctValues = true;
-                query.execute(params).then(function(response){
-                    console.log(response.features);
-                });
-            }*/
         });
     });
