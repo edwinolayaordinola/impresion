@@ -3,6 +3,7 @@ let url_sed_superv = "";
 let url_tramo_superv = "";
 let url_uap_superv = "";
 let where = "";
+let where2 = "";
 let layer_uap_codsed_superv = "";
 let layer_sed_superv = "";
 let layer_tramo_superv = "";
@@ -85,9 +86,9 @@ require([
                 title: "UAP"
             };
             // DEFINICIÓN DE FEATURE LAYERS
-            layer_sed_superv = createFeatureLayer(layerSed);
-            layer_tramo_superv = createFeatureLayer(layerTramo);
-            layer_uap_superv = createFeatureLayer(layerUAP);
+            layer_sed_superv = createFeatureLayer(layerSed, where);
+            layer_tramo_superv = createFeatureLayer(layerTramo, where);
+            layer_uap_superv = createFeatureLayer(layerUAP, where);
             filterFeatureLayer(layer_sed_superv, layerSed.url);
             filterFeatureLayer(layer_tramo_superv, layerTramo.url);
             filterFeatureLayer(layer_uap_superv, layerUAP.url);
@@ -97,20 +98,22 @@ require([
             llenarSelect(layer_sed_superv);
 
             $("#selectedCodSed").change(function(){
-                layer_sed_superv.visible = false;
-                layer_tramo_superv.visible = false;
-                layer_uap_superv.visible = false;
+                //layer_sed_superv.visible = false;
+                //layer_tramo_superv.visible = false;
+                //layer_uap_superv.visible = false;
                 codsed  = $("#selectedCodSed").val();
                 filtro_codsed = " CODSED = '" + codsed + "'";
-                where = filtro_codsed;
-                let layer_codsed = {
-                    index : 3,
-                    url : url_uap_superv,
-                    title: "CODSED"
-                };
-                layer_uap_codsed_superv = createFeatureLayer(layer_codsed);
-                filterFeatureCodSedLayer(layer_uap_codsed_superv, url_uap_superv,where);
-                map.add(layer_uap_codsed_superv);
+                //where = " CODSED = '" + codsed + "'";
+                //let layer_codsed = {
+                //    index : 3,
+                //    url : url_uap_superv,
+                //    title: "CODSED"
+                //};
+                //layer_uap_codsed_superv = createFeatureLayer(layer_codsed);
+                filterFeatureCodSedLayer(layer_sed_superv, filtro_codsed);
+                filterFeatureCodSedLayer(layer_tramo_superv, filtro_codsed);
+                filterFeatureCodSedLayer(layer_uap_superv, filtro_codsed);
+                //map.add(layer_uap_codsed_superv);
             });
             $("#item-png").click(function(){
                 generateDownload({extension:".png", format:"png", title:"reporte_general_deficiencias"});
@@ -126,12 +129,13 @@ require([
             function llenarSelect(layer_sed_superv){
                 const query = new Query();
                 query.where = where;
-                query.outSpatialReference = { wkid: 4326 };
-                query.returnGeometry = true;
+                //query.outSpatialReference = { wkid: 4326 };
+                query.returnGeometry = false;
                 query.outFields = ["*"];
                 let _codseds = [];
                 let htmlSelect ="<option value=''>Seleccione</option>";
                 layer_sed_superv.queryFeatures(query).then(results => {
+                    console.log(results);
                     results.features.forEach(data=>{
                         if(_codseds.indexOf(data.attributes.CODSED)<0){
                             _codseds.push(data.attributes.CODSED)
@@ -143,7 +147,7 @@ require([
                     $("#selectedCodSed").html(htmlSelect);
                 });
             }
-            function createFeatureLayer(layer){
+            function createFeatureLayer(layer, where){
                 let featureLayer = new FeatureLayer({
                     url: layer.url,
                     title: layer.title,
@@ -155,35 +159,35 @@ require([
                 return featureLayer;
             }
 
-            function createFeatureCodsedLayer(url_codsed_superv,_where){
-                layer_codsed_superv = new FeatureLayer({
-                    url: url_codsed_superv,
-                    title: "CODSED",
-                    outFields: ["*"],
-                    definitionExpression: _where
-                });
-                return layer_codsed_superv;
-            }
-            function llenarSelect(layer_sed_superv, _where){
-                const query = new Query();
-                query.where = _where;
-                query.outSpatialReference = { wkid: 4326 };
-                query.returnGeometry = true;
-                query.outFields = ["*"];
-                let _codseds = [];
-                let htmlSelect ="<option value=''>Seleccione</option>";
-                layer_sed_superv.queryFeatures(query).then(results => {
-                    results.features.forEach(data=>{
-                        if(_codseds.indexOf(data.attributes.CODSED)<0){
-                            _codseds.push(data.attributes.CODSED)
-                        };
-                    });
-                    _codseds.forEach(elemento=>{
-                        htmlSelect += "<option value='"+elemento+"'>"+elemento+"</option>";
-                    });
-                    $("#selectedCodSed").html(htmlSelect);
-                });
-            }
+            //function createFeatureCodsedLayer(url_codsed_superv,_where){
+            //    layer_codsed_superv = new FeatureLayer({
+            //        url: url_codsed_superv,
+            //        title: "CODSED",
+            //        outFields: ["*"],
+            //        definitionExpression: _where
+            //    });
+            //    return layer_codsed_superv;
+            //}
+            //function llenarSelect(layer_sed_superv, _where){
+            //    const query = new Query();
+            //    query.where = _where;
+            //    query.outSpatialReference = { wkid: 4326 };
+            //    query.returnGeometry = true;
+            //    query.outFields = ["*"];
+            //    let _codseds = [];
+            //    let htmlSelect ="<option value=''>Seleccione</option>";
+            //    layer_sed_superv.queryFeatures(query).then(results => {
+            //        results.features.forEach(data=>{
+            //            if(_codseds.indexOf(data.attributes.CODSED)<0){
+            //                _codseds.push(data.attributes.CODSED)
+            //            };
+            //        });
+            //        _codseds.forEach(elemento=>{
+            //            htmlSelect += "<option value='"+elemento+"'>"+elemento+"</option>";
+            //        });
+            //        $("#selectedCodSed").html(htmlSelect);
+            //    });
+            //}
             //function filterFeatureLayer(layer_sed_superv, url, index,_where){
 
             function filterFeatureLayer(layer){
@@ -214,62 +218,64 @@ require([
                         zoomToLayer(results);
                 });
             }
-
-
-            function filterFeatureCodSedLayer(layer_codsed_superv, url, index,_where){
+            function filterFeatureCodSedLayer(layer, _where){
                 const query = new Query();
                 query.where = _where;
                 query.outSpatialReference = { wkid: 4326 };
                 query.returnGeometry = true;
                 query.outFields = ["*"];
-                layer_codsed_superv.queryFeatures(query).then(results => {
-                    results.features.forEach(data=>{
-                        console.log(data.attributes.CODSED);
-                    });
-                    // prints the array of features to the console
+                layer.queryFeatures(query).then(results => {
+                    let values = {};
+                    if (layer.index == 2) {
+                        results.features.forEach(feature => {
+                            let value = values[feature.attributes["ESTADODEFICIENCIA"]];
+                            if (value)
+                                values[feature.attributes["ESTADODEFICIENCIA"]] = values[feature.attributes["ESTADODEFICIENCIA"]]+1;
+                            else 
+                                values[feature.attributes["ESTADODEFICIENCIA"]] = 1;                  
+                        });
+                    }
                     quantityRecords = results.features.length;
-                    //createLegend(url, quantityRecords);
+                    quantityRecords = layer.index == 2 ? quantityRecords : 0;
+                    createLegend(layer, quantityRecords, values);
                     if (results.features.length == 0) {
                         return;
-                    }
-                    if (index == 1){
-                        zoomToLayer(results,18);
-                    } else{
-                        zoomToLayer(results,8);
                     }
                     if (layer.index == 0)
                         zoomToLayer(results);
                 });
             }
             function zoomToLayer(results, _zoom){
+                _zoom = _zoom || 12;
                 var point = results.features[0];
                 view.goTo({
                     center: [point.geometry.x, point.geometry.y],
                     zoom: _zoom
                 });
             }
-            function filterFeatureCodSedLayer(layer_codsed_superv, url, _where){
-                const query = new Query();
-                query.where = _where;
-                query.outSpatialReference = { wkid: 4326 };
-                query.returnGeometry = true;
-                query.outFields = ["*"];
-                layer_codsed_superv.queryFeatures(query).then(results => {
-                    results.features.forEach(data=>{
-                        console.log(data.attributes.CODSED);
-                    });
-                    // prints the array of features to the console
-                    quantityRecords = results.features.length;
-                    //createLegend(url, quantityRecords);
-                    if (results.features.length == 0) {
-                        return;
-                    }
-                    zoomToLayer(results,8);
-                    /*if (layer.index == 0)
-                        zoomToLayer(results);*/
-                });
-            }
+            //function filterFeatureCodSedLayer(layer_codsed_superv, url, _where){
+            //    const query = new Query();
+            //    query.where = _where;
+            //    query.outSpatialReference = { wkid: 4326 };
+            //    query.returnGeometry = true;
+            //    query.outFields = ["*"];
+            //    layer_codsed_superv.queryFeatures(query).then(results => {
+            //        results.features.forEach(data=>{
+            //            console.log(data.attributes.CODSED);
+            //        });
+            //        // prints the array of features to the console
+            //        quantityRecords = results.features.length;
+            //        //createLegend(url, quantityRecords);
+            //        if (results.features.length == 0) {
+            //            return;
+            //        }
+            //        zoomToLayer(results,8);
+            //        /*if (layer.index == 0)
+            //            zoomToLayer(results);*/
+            //    });
+            //}
             function createLegend(layer, quantity, values){
+                $("#legend").empty();
                 _proxyurl = !_proxyurl.endsWith("?") ? _proxyurl : _proxyurl+"?";
                 //$.getJSON(_proxyurl+"?"+url_sed_superv+"?f=json", function( data ) {
                 $.getJSON(_proxyurl+layer.uurl+"?f=json", data => {
