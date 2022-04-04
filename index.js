@@ -84,6 +84,8 @@ require([
                 url : url_uap_superv,
                 title: "UAP"
             };
+            //Descomentar para producción//
+            //_proxyurl = _proxyurl+"?";
             // DEFINICIÓN DE FEATURE LAYERS
             layer_sed_superv = createFeatureLayer(layerSed, where);
             layer_tramo_superv = createFeatureLayer(layerTramo, where);
@@ -286,7 +288,8 @@ require([
                         let height = pdf.internal.pageSize.getHeight();
                         var img = new Image();
                         img.src = canvasImg;
-                        pdf.addImage(img, 'png', -10, 0, 310, height);
+                        //pdf.addImage(img, 'png', -10, 0, 310, height);
+                        pdf.addImage(img, 'png', 0, 0, 310, height);
                         pdf.save(`${options.title}.pdf`);
                         options.container.remove();
                         return true;
@@ -325,6 +328,7 @@ require([
                 let $dom = $('<div class="position-relative row"></div>').appendTo($container);
                 $dom.css({ width: widthContainer, height: heightContainer });
                 let $div = $('<div class="div-legend-total"></div>').appendTo($dom);
+                let $div333 = $('<div class="row">'+ $('#codigoSed').clone().html() +'</div>').appendTo($div);
                 let $img = $('<img crossorigin="anonymous" class="img-fluid" />').appendTo($div);
                 let $div2 = $('<div class="div-legend-parcial">'+ $('#legend').clone().html() +'</div>').appendTo($dom);
                 $img.css({ width: $dom.outerWidth(true), height: $dom.outerHeight(true) });
