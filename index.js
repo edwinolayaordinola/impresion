@@ -33,12 +33,8 @@ require([
         ) => {
 
         _proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
+        _proxyurl = "";
         $(document).ready(function(){
-
-            /*urlUtils.addProxyRule({
-                urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
-                proxyUrl: _proxyurl
-            });*/
             map = new Map({
                 basemap: "osm"
             });
@@ -52,8 +48,18 @@ require([
             _globalidor = urlparams.substring(1);
             id_or = _globalidor.split('=')[1];
             $("#div-departamento").text(getNombre(parseInt(id_or)));
+
             //*URL DE WEB SERVICES*/
             /*servicio protegio */
+            /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
+            /*comentar para desarrollo */
+            /*urlUtils.addProxyRule({
+                urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
+                proxyUrl: _proxyurl
+            });*/
+            
+            //// URL DE WEB SERVICES
+             /*servicio protegio */
             /*url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
             url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";*/
@@ -69,6 +75,32 @@ require([
             filterFeatureLayer(layer_sed_superv, url_sed_superv, 0,where);
             filterFeatureLayer(layer_tramo_superv, url_tramo_superv,0,where);
             filterFeatureLayer(layer_uap_superv, url_uap_superv,0,where);
+            //cargarDataInit(url_sed_superv);
+            let layerSed = {
+                index: 0,
+                url : url_sed_superv,
+                title: "SED"
+            };
+            let layerTramo = {
+                index: 1,
+                url : url_tramo_superv,
+                title: "TRAMO"
+            };
+            let layerUAP = {
+                index: 2,
+                url : url_uap_superv,
+                title: "UAP"
+            };            
+            // DEFINICIÓN DE FEATURE LAYERS 
+            let where = "CODSED = '" + codsed + "'";
+            //where = "ID_LUMINARIA = '27356'";
+            console.log(where);
+            let layer_sed_superv = createFeatureLayer(layerSed);
+            let layer_tramo_superv = createFeatureLayer(layerTramo);
+            let layer_uap_superv = createFeatureLayer(layerUAP);
+            filterFeatureLayer(layer_sed_superv, layerSed.url);
+            filterFeatureLayer(layer_tramo_superv, layerTramo.url);
+            filterFeatureLayer(layer_uap_superv, layerUAP.url);
             map.add(layer_sed_superv);
             map.add(layer_tramo_superv);
             map.add(layer_uap_superv);
@@ -81,9 +113,6 @@ require([
                 layer_uap_codsed_superv = createFeatureCodsedLayer(url_uap_superv,filtro_codsed);
                 filterFeatureCodSedLayer(layer_uap_codsed_superv, url_uap_superv, 1,filtro_codsed);
                 map.add(layer_uap_codsed_superv);
-                //layer_codsed_superv.visible = true;
-                
-                
             });
             $("#item-png").click(function(){
                 generateDownload({extension:".png", format:"png", title:"reporte_general_deficiencias"});
@@ -99,11 +128,20 @@ require([
                 let layer_sed_superv = new FeatureLayer({
                     url: url_sed_superv,
                     title: "SED",
+=======
+            function createFeatureLayer(layer){
+                let featureLayer = new FeatureLayer({
+                    url: layer.url,
+                    title: layer.title,
+                    index: layer.index,
+                    uurl:layer.url,
+>>>>>>> dd5bae40853b5e638a2a7fd0dc2a36fcb59597bd
                     outFields: ["*"],
                     definitionExpression: _where
                 });
-                return layer_sed_superv;
+                return featureLayer;
             }
+<<<<<<< HEAD
             function createFeatureCodsedLayer(url_codsed_superv,_where){
                 layer_codsed_superv = new FeatureLayer({
                     url: url_codsed_superv,
@@ -134,19 +172,38 @@ require([
                 });
             }
             function filterFeatureLayer(layer_sed_superv, url, index,_where){
+=======
+            function filterFeatureLayer(layer){
+>>>>>>> dd5bae40853b5e638a2a7fd0dc2a36fcb59597bd
                 const query = new Query();
                 query.where = _where;
                 query.outSpatialReference = { wkid: 4326 };
                 query.returnGeometry = true;
                 query.outFields = ["*"];
+<<<<<<< HEAD
                 layer_sed_superv.queryFeatures(query).then(results => {
                     console.log(results.features);
+=======
+                layer.queryFeatures(query).then(results => {
+>>>>>>> dd5bae40853b5e638a2a7fd0dc2a36fcb59597bd
                     // prints the array of features to the console
+                    let values = {};
+                    if (layer.index == 2) {
+                        results.features.forEach(feature => {
+                            let value = values[feature.attributes["ESTADODEFICIENCIA"]];
+                            if (value)
+                                values[feature.attributes["ESTADODEFICIENCIA"]] = values[feature.attributes["ESTADODEFICIENCIA"]]+1;
+                            else 
+                                values[feature.attributes["ESTADODEFICIENCIA"]] = 1;                  
+                        });
+                    }
                     quantityRecords = results.features.length;
-                    createLegend(url, quantityRecords);
+                    quantityRecords = layer.index == 2 ? quantityRecords : 0;
+                    createLegend(layer, quantityRecords, values);
                     if (results.features.length == 0) {
                         return;
                     }
+<<<<<<< HEAD
                     if (index == 1){
                         zoomToLayer(results,18);
                     } else{
@@ -175,6 +232,10 @@ require([
                     } else{
                         zoomToLayer(results,8);
                     }
+=======
+                    if (layer.index == 0)
+                        zoomToLayer(results);
+>>>>>>> dd5bae40853b5e638a2a7fd0dc2a36fcb59597bd
                 });
             }
             function zoomToLayer(results, _zoom){
@@ -184,20 +245,24 @@ require([
                     zoom: _zoom
                 });
             }
-            function createLegend(url_sed_superv, quantity){
+            function createLegend(layer, quantity, values){
+                _proxyurl = !_proxyurl.endsWith("?") ? _proxyurl : _proxyurl+"?";
                 //$.getJSON(_proxyurl+"?"+url_sed_superv+"?f=json", function( data ) {
-                $.getJSON(url_sed_superv+"?f=json", function( data ) {
+                $.getJSON(_proxyurl+layer.uurl+"?f=json", data => {
                     let renderer = data.drawingInfo.renderer;
                     let $divLegend = $("#legend");
                     let $div = $divLegend.append("<div class='row mt-2'></div>");
                     $div = $div.find('>div:last');
-                    $div.append("<span> "+ data.name +" ("+quantity+") </span>");
+                    let quantityText = quantity > 0 ? "("+quantity+")" : "";
+                    $div.append("<span> "+ layer.title +" "+quantityText+" </span>");
                     if (renderer.type =="simple" && renderer.symbol.type != "esriSLS")
                         $div.append("<span><img class='image-legend' src=data:"+renderer.symbol.contentType+";base64,"+renderer.symbol.imageData+"></span>");
-                    else if (renderer.type =="uniqueValue")
+                    else if (renderer.type =="uniqueValue") {
                         renderer.uniqueValueInfos.forEach( data2 => {
-                            $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+">"+data2.value+"</span>");
+                            let value = values[data2.value] || 0;
+                            $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+">"+data2.label+" ("+value+")</span>");
                         })
+                    }
                     else if (renderer.type =="simple" && renderer.symbol.type == "esriSLS")
                         $div.append("<span></span>");
                 });
@@ -244,8 +309,9 @@ require([
                         let height = pdf.internal.pageSize.getHeight();
                         var img = new Image();
                         img.src = canvasImg;
-                        pdf.addImage(img, 'png', 0, 0, width, height);
+                        pdf.addImage(img, 'png', -10, 0, 310, height);
                         pdf.save(`${options.title}.pdf`);
+                        options.container.remove();
                         return true;
                     }
                 });
@@ -271,7 +337,7 @@ require([
                 let height = Math.round((paper.height / 25.4) * 96);
                 let widthContainer = width;
                 let heightContainer = height;
-                widthContainer = height + 300;
+                widthContainer = height + 600;
                 heightContainer = width + 100;
                 let options = { title: 'Mapa', keywords: 'Mapa, Osinergmin', orientation: 0, paper: 'paperId', format: 'format' };
                 $container.css({ width: widthContainer, height: heightContainer });
