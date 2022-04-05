@@ -4,7 +4,7 @@
 	padding-top: 0px;
 	padding-bottom: 0px;
 	width: 100%;
-	height: 76vh;
+	height: 83vh;
 }
 
 .contenedor {
@@ -31,7 +31,7 @@
 
 .cabecera{
 	width: 100%;
-	height: 7vh;
+	height: 4vh;
 	background: #b2dbfb;
 }
 .row { 
@@ -55,8 +55,7 @@
 	height: 100%;
 	float: left;
 	text-align: center;
-	padding-bottom: 15px;
-	margin-bottom: 10px;
+	padding-top: 3px;
 }
 
 .cabecera-derecha{
@@ -81,13 +80,13 @@
 }
 .contenedor-mapa{ 
 	width: 100%;
-	height: 87vh;
+	height: 90vh;
 }
 
 .contenido-mapa{
 	width: 75%;
 	float: left;
-	height: 84vh;
+	height: 88vh;
 	padding: 6px;
 	border: 4px solid black;
 	/*margin-left: 3px;
@@ -96,7 +95,7 @@
 
 .cod-sed{
 	width: 100%;
-	height: 5vh;
+	height: 3vh;
 	display: flex;
 	justify-content: center;
 	font-weight: bold;

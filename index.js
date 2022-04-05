@@ -33,7 +33,7 @@ require([
         Ground
         ) => {
 
-        _proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
+        //_proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
         _proxyurl = "";
         $(document).ready(function(){
             map = new Map({
@@ -122,7 +122,7 @@ require([
                 query.outFields = ["*"];
                 query.orderByFields = ["CODSED"];
                 let _codseds = [];
-                let htmlSelect ="<option value=''>Seleccione</option>";
+                let htmlSelect ="<option value=''>Seleccione CodSed</option>";
                 layer_sed_superv.queryFeatures(query).then(results => {
                     results.features.forEach(data=>{
                         if(_codseds.indexOf(data.attributes.CODSED)<0){
@@ -211,8 +211,6 @@ require([
                 });
             }
             function createLegend(layer, quantity, values){
-                _proxyurl = !_proxyurl.endsWith("?") ? _proxyurl : _proxyurl+"?";
-                //_proxyurl = _proxyurl+"?";
                 $.getJSON(_proxyurl+layer.uurl+"?f=json", data => {
                     let renderer = data.drawingInfo.renderer;
                     let $divLegend = $("#legend");
@@ -282,14 +280,15 @@ require([
                     onrendered: function (canvas) {
                         var canvasImg = canvas.toDataURL("image/jpg");
                         let pdf = new jsPDF({
-                            orientation: 'l'
+                            orientation: 'l',
+                            unit: 'mm'
                         });
                         let width = pdf.internal.pageSize.getWidth();
                         let height = pdf.internal.pageSize.getHeight();
                         var img = new Image();
                         img.src = canvasImg;
                         //pdf.addImage(img, 'png', -10, 0, 310, height);
-                        pdf.addImage(img, 'png', 0, 0, 270, height);
+                        pdf.addImage(img, 'png', 5, 25, 280, 150);
                         pdf.save(`${options.title}.pdf`);
                         options.container.remove();
                         return true;
