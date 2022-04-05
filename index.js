@@ -218,9 +218,18 @@ require([
                     $div = $div.find('>div:last');
                     let quantityText = quantity > 0 ? "("+quantity+")" : "";
                     $div.append("<span> "+ layer.title +" "+quantityText+" </span>");
-                    if (renderer.type =="simple" && renderer.symbol.type != "esriSLS")
-                        $div.append("<span><img class='image-legend' src=data:"+renderer.symbol.contentType+";base64,"+renderer.symbol.imageData+"></span>");
-                    else if (renderer.type =="uniqueValue") {
+                    if (layer.index == 0) {
+                        renderer.uniqueValueInfos.forEach( data2 => {
+                            $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+">"+data2.label+"</span>");
+                        });
+                    }
+                    else if (layer.index == 1) {
+                        if (renderer.symbol.type == "esriSLS" ){
+                            let style = _createStrokeLegend2(renderer.symbol);
+                            $div.append("<span><hr style='"+style+"'></hr></span>");
+                        }
+                    }
+                    else if (layer.index == 2) {
                         if (renderer.defaultSymbol) {
                             let value = 0;
                             if (values[null])
@@ -230,18 +239,41 @@ require([
                             if (renderer.defaultSymbol.type == "esriPMS" ){
                                 $div.append("<span><img class='image-legend' src=data:"+renderer.defaultSymbol.contentType+";base64,"+renderer.defaultSymbol.imageData+">"+renderer.defaultLabel+" ("+value+")</span>");
                             }
-                            else if (renderer.defaultSymbol.type == "esriSMS" ){
-                                //$div.append("<span><img class='image-legend' src="+_createMarkerLegend(renderer.defaultSymbol)+">"+renderer.defaultLabel+" ("+value+")</span>");
-                                $div.append("<span>"+_createMarkerLegend(renderer.defaultSymbol)+" "+renderer.defaultLabel+" ("+value+")</span>");
-                            }
                         }
                         renderer.uniqueValueInfos.forEach( data2 => {
                             let value = values[data2.value] || 0;
                             $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+">"+data2.label+" ("+value+")</span>");
                         })
                     }
-                    else if (renderer.type =="simple" && renderer.symbol.type == "esriSLS")
-                        $div.append("<span></span>");
+
+                    //if (renderer.type =="simple" && renderer.symbol.type != "esriSLS")
+                    //    $div.append("<span><img class='image-legend' src=data:"+renderer.symbol.contentType+";base64,"+renderer.symbol.imageData+"></span>");
+                    //else if (renderer.type =="uniqueValue") {
+                    //    if (renderer.defaultSymbol) {
+                    //        let value = 0;
+                    //        if (values[null])
+                    //            value = values[null];
+                    //        else
+                    //            value = values[renderer.field1] || 0;
+                    //        if (renderer.defaultSymbol.type == "esriPMS" ){
+                    //            $div.append("<span><img class='image-legend' src=data:"+renderer.defaultSymbol.contentType+";base64,"+renderer.defaultSymbol.imageData+">"+renderer.defaultLabel+" ("+value+")</span>");
+                    //        }
+                    //        else if (renderer.defaultSymbol.type == "esriSMS" ){
+                    //            let style = _createMarkerLegend2(renderer.defaultSymbol);
+                    //            $div.append("<span><hr style='"+style+"'></hr>"+renderer.defaultLabel+" ("+value+")</span>");
+                    //            //$div.append("<span><img class='image-legend' src="+_createMarkerLegend(renderer.defaultSymbol)+">"+renderer.defaultLabel+" ("+value+")</span>");
+                    //            //$div.append("<span>"+_createMarkerLegend(renderer.defaultSymbol)+" "+renderer.defaultLabel+" ("+value+")</span>");
+                    //            //$canvas = $("<canvas></canvas>").appendTo($div);
+                    //            //_createMarkerLegend(renderer.defaultSymbol, $canvas);
+                    //        }
+                    //    }
+                    //    renderer.uniqueValueInfos.forEach( data2 => {
+                    //        let value = values[data2.value] || 0;
+                    //        $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+">"+data2.label+" ("+value+")</span>");
+                    //    })
+                    //}
+                    //else if (renderer.type =="simple" && renderer.symbol.type == "esriSLS")
+                    //    $div.append("<span></span>");
                 });
             }
             function generateDownload(options){
@@ -366,10 +398,16 @@ require([
                 context.arc(canvas.width / 2, canvas.height / 2, symbol.size * 1, 0, Math.PI * 2, false);
                 context.fill();
                 context.stroke();
-                let data = canvas.toDataURL();
-                canvas.remove();
-                //console.log(data);
-                return canvas;
+                let data = canvas.toDataURL("image/jpeg");
+                //canvas.remove();
+                console.log(data);
+                return data;
+            }
+            function _createStrokeLegend2(symbol) {
+                console.log(symbol);
+                let rgb = 'rgba('+symbol.color[0]+', '+symbol.color[1]+', '+symbol.color[2]+', '+symbol.color[3]+')';
+                let style = "opacity: 1.0;background-color: "+rgb+";width: "+(symbol.width*20)+"px;height: 5px !important;";
+                return style;
             }
         });
     });
