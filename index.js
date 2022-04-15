@@ -20,7 +20,9 @@ require([
     "esri/tasks/QueryTask",
     "esri/tasks/support/Query",
     "esri/layers/ImageryLayer",
-    "esri/Ground"
+    "esri/Ground",
+    "esri/widgets/Expand",
+    "esri/widgets/BasemapGallery"
     ], (
         urlUtils,
         Map, 
@@ -30,7 +32,9 @@ require([
         QueryTask,
         Query,
         ImageryLayer,
-        Ground
+        Ground,
+        Expand,
+        BasemapGallery
         ) => {
 
         //_proxyurl = "https://gisem.osinergmin.gob.pe/ProxyUAP/proxy.ashx";
@@ -45,6 +49,17 @@ require([
                 center: [-74.049, -8.185],
                 zoom: 5
             });
+            let basemapGallery = new BasemapGallery({
+                view: view
+              });
+            const MeExpand = new Expand({
+                view: view,
+                content: basemapGallery,
+                expanded: false,
+                expandTooltip: 'Mapas Base'
+            });
+            //adds
+            view.ui.add(MeExpand, 'top-left');
             let urlparams= window.location.search;
             _globalidor = urlparams.substring(1);
             id_or = _globalidor.split('=')[1];
@@ -65,9 +80,9 @@ require([
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
             url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";*/
             /**servicio abierto */
-            url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/0";
-            url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/2";
-            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2/FeatureServer/3";
+            url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2_gdb/FeatureServer/0";
+            url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2_gdb/FeatureServer/2";
+            url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2_gdb/FeatureServer/3";
             where = "ID_OR = '" + id_or + "'";
             let layerSed = {
                 index: 0,
@@ -100,7 +115,7 @@ require([
             $("#selectedCodSed").change(function(){
                 clearLeyend();
                 codsed  = $("#selectedCodSed").val();
-                $("#codigoSed").html("Código de SED : " + codsed);
+                $("#codigoSed").html("SED : " + codsed);
                 filtro_codsed = " CODSED = '" + codsed + "'";
                 filterFeatureCodSedLayer(layer_sed_superv, filtro_codsed);
                 filterFeatureCodSedLayer(layer_tramo_superv, filtro_codsed);
@@ -114,7 +129,7 @@ require([
             });
             $("#item-pdf").click(function(){
                 generateDownload({extension:".pdf", format:"PDF", title:"reporte_general_deficiencias"});
-            });
+            });            
             function llenarSelect(layer_sed_superv){
                 const query = new Query();
                 query.where = where;
@@ -122,7 +137,7 @@ require([
                 query.outFields = ["*"];
                 query.orderByFields = ["CODSED"];
                 let _codseds = [];
-                let htmlSelect ="<option value=''>Seleccione CodSed</option>";
+                let htmlSelect ="<option value=''>Seleccione Sed</option>";
                 layer_sed_superv.queryFeatures(query).then(results => {
                     results.features.forEach(data=>{
                         if(_codseds.indexOf(data.attributes.CODSED)<0){
@@ -133,6 +148,7 @@ require([
                         htmlSelect += "<option value='"+elemento+"'>"+elemento+"</option>";
                     });
                     $("#selectedCodSed").html(htmlSelect);
+                    $("#selectedCodSed").selectpicker();
                 });
             }
             function createFeatureLayer(layer, where){
@@ -198,8 +214,10 @@ require([
                     if (results.features.length == 0) {
                         return;
                     }
-                    if (layer.index == 0)
-                        zoomToLayer(results, 18);
+                    //if (layer.index == 0)
+                    //    zoomToLayer(results, 18);
+                    if (layer.index == 1)
+                        zoomToLayer2(results, 18);
                 });
             }
             function zoomToLayer(results, _zoom){
@@ -209,6 +227,10 @@ require([
                     center: [point.geometry.x, point.geometry.y],
                     zoom: _zoom
                 });
+            }
+            function zoomToLayer2(results, _zoom){
+                var sourceGraphics = results.features.map(e => { return e.geometry });
+                view.goTo(sourceGraphics);
             }
             function createLegend(layer, quantity, values){
                 $.getJSON(_proxyurl+layer.uurl+"?f=json", data => {
@@ -245,35 +267,6 @@ require([
                             $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+">"+data2.label+" ("+value+")</span>");
                         })
                     }
-
-                    //if (renderer.type =="simple" && renderer.symbol.type != "esriSLS")
-                    //    $div.append("<span><img class='image-legend' src=data:"+renderer.symbol.contentType+";base64,"+renderer.symbol.imageData+"></span>");
-                    //else if (renderer.type =="uniqueValue") {
-                    //    if (renderer.defaultSymbol) {
-                    //        let value = 0;
-                    //        if (values[null])
-                    //            value = values[null];
-                    //        else
-                    //            value = values[renderer.field1] || 0;
-                    //        if (renderer.defaultSymbol.type == "esriPMS" ){
-                    //            $div.append("<span><img class='image-legend' src=data:"+renderer.defaultSymbol.contentType+";base64,"+renderer.defaultSymbol.imageData+">"+renderer.defaultLabel+" ("+value+")</span>");
-                    //        }
-                    //        else if (renderer.defaultSymbol.type == "esriSMS" ){
-                    //            let style = _createMarkerLegend2(renderer.defaultSymbol);
-                    //            $div.append("<span><hr style='"+style+"'></hr>"+renderer.defaultLabel+" ("+value+")</span>");
-                    //            //$div.append("<span><img class='image-legend' src="+_createMarkerLegend(renderer.defaultSymbol)+">"+renderer.defaultLabel+" ("+value+")</span>");
-                    //            //$div.append("<span>"+_createMarkerLegend(renderer.defaultSymbol)+" "+renderer.defaultLabel+" ("+value+")</span>");
-                    //            //$canvas = $("<canvas></canvas>").appendTo($div);
-                    //            //_createMarkerLegend(renderer.defaultSymbol, $canvas);
-                    //        }
-                    //    }
-                    //    renderer.uniqueValueInfos.forEach( data2 => {
-                    //        let value = values[data2.value] || 0;
-                    //        $div.append("<span><img class='image-legend' src=data:"+data2.symbol.contentType+";base64,"+data2.symbol.imageData+">"+data2.label+" ("+value+")</span>");
-                    //    })
-                    //}
-                    //else if (renderer.type =="simple" && renderer.symbol.type == "esriSLS")
-                    //    $div.append("<span></span>");
                 });
             }
             function generateDownload(options){
