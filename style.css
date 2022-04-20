@@ -86,7 +86,7 @@
 .contenido-mapa{
 	width: 75%;
 	float: left;
-	height: 88vh;
+	/*height: 88vh;*/
 	padding: 6px;
 	border: 4px solid black;
 	/*margin-left: 3px;
@@ -134,30 +134,74 @@
 	height:50px;
 }
 
-.div-legend-parcial{
-	width: 10%;
-	background-color: white;
-}
-
-.div-legend-total{
-	width: 90%;
-	background-color: white;
-}
-
 .linea {
 	height: 5px !important;
 	background-color: red;
 	width: 30px;
     opacity: 1.0;
-  }
-  .row>* {
-    flex-shrink: 0;
-    width: 100%;
-    max-width: 100%;
-    padding-right: calc(var(--bs-gutter-x) * .5);
-    padding-left: calc(var(--bs-gutter-x) * .5);
-    margin-top: var(--bs-gutter-y);
+}
+.row>* {
+	flex-shrink: 0;
+	width: 100%;
+	max-width: 100%;
+	padding-right: calc(var(--bs-gutter-x) * .5);
+	padding-left: calc(var(--bs-gutter-x) * .5);
+	margin-top: var(--bs-gutter-y);
 }
 hr{
 	margin: 1rem 0;
+}
+
+.container{
+	width: 1000px;
+	/*height: 200px;*/
+	flex-wrap: nowrap;
+}
+
+.cuadro{
+	background-color: orange;
+	border: solid 1px black;
+	padding: 10px;
+	width: 200px;
+}
+
+.cuadro-white{
+	background-color: white;
+	border: solid 1px black;
+	padding: 10px;
+	width: 200px;
+}
+
+#divResumenes{
+	display: inherit;
+}
+#divResumenes>.cuadro{
+	margin-left: 10px;
+}
+
+.div-legend-parcial{
+	width: 10% !important;
+	background-color: white;
+}
+
+.div-legend-total{
+	width: 90% !important;
+	background-color: white;
+}
+.div-norte{	
+	position: absolute;
+    z-index: 9999;
+    padding: 10px;
+	text-align: right;
+    margin-left: -180px;
+}
+
+.img-fluid{
+	border: solid 5px black;
+}
+
+.bootstrap-select .dropdown-toggle:focus, .bootstrap-select>select.mobile-device:focus+.dropdown-toggle{
+	/*outline: thin dotted #333!important;*/
+	outline: none!important;
+    /*outline-offset: -2px;*/
 }

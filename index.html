@@ -24,13 +24,17 @@
 			</div>
 			<div class="cabecera-centro">
 				<!--<select id="selectedCodSed" class="form-control" style="display: inline; padding: 4px;" aria-label="Default select"></select>-->
-				<select id="selectedCodSed" class="form-control" data-live-search="true">
-				</select>
-			</div>			
-			  
-			<div class="cabecera-derecha">				
+				<select id="selectedCodSed" class="form-control" data-live-search="true"></select>
+				<select id="selectedCodSed2" class="form-control" data-live-search="true" style="display: none;"></select>
+			</div>
+			<div class="cabecera-derecha">
+				<div class="form-check">
+					<label class="form-check-label">
+					  <input id="checkinput" type="checkbox" class="form-check-input" value="">Mostrar solo con UAP's
+					</label>
+				</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<div class="div-descargar" id="descargar">
-					<nav class="navbar navbar-expand">
+					<!-- <nav class="navbar navbar-expand">
 						<div class="container-fluid">
 							<div class="collapse navbar-collapse" id="navbarSupportedContent">
 								<ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -45,21 +49,32 @@
 								</ul>
 							</div>
 						</div>
-					</nav>
-				</div>
+					</nav> -->
+					<ul class="nav nav-tabs">					
+						<li class="nav-item dropdown">
+						  <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><img src="imagenes/download-solid.svg" style="padding-top: 1px;" /></a>
+						  <div class="dropdown-menu">
+							<a class="dropdown-item" id="item-png" href="#">PNG</a>
+							<a class="dropdown-item" id="item-jpg" href="#">JPG</a>
+							<a class="dropdown-item" id="item-pdf" href="#">PDF</a>
+						  </div>
+						</li>
+					  </ul>
+				</div>				
 			</div>
 		</div>
 		<div class="contenedor-mapa" id="contenedor-mapa">
 			<div class="contenido-mapa">
-				<div id="codigoSed" class="cod-sed">
-				</div>
-				<div  id="map">
-				</div>
+				<div id="codigoSed" class="cod-sed" style="display: none;"></div>
+				<div  id="map"></div>
 			</div>
 			<div class="descripcion-mapa">
 				<h6>Leyenda</h6>
-				<div id="legend">
-				</div>
+				<div id="legend"></div>
+			</div>
+			<div class="row container" id="containerInfo">
+				<div id="divResumen" class="cuadro-white" style="display: none;"></div>
+				<div id="divResumenes"></div>
 			</div>
 		</div>
 	</div>
