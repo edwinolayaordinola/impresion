@@ -70,25 +70,25 @@ require([
             $("#div-departamento").text(getNombre(parseInt(id_or)));
 
             //PROXY//
-            //servicio protegio//
             //Descomentar para producción//
             //urlUtils.addProxyRule({
             //    urlPrefix: "https://services5.arcgis.com/oAvs2fapEemUpOTy",
             //    proxyUrl: _proxyurl
             //});
             
-            //Descomentar para producción//
-            //_proxyurl = _proxyurl+"?";            
+            //Descomentar para producción
+            //_proxyurl = _proxyurl+"?";
 
+            //servicio protegio
             //URL DE WEB SERVICES
-            //servicio protegio//
-            //Descomentar para producción//
+            
+            //Descomentar para producción
             //url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/0";
             //url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/2";
             //url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";
-            //url_uap_superv1 = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";
-            //url_uap_superv2 = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_3_gdb_view_R/FeatureServer/3";
-            //servicio abierto//
+            //url_uap_superv1 = "https://services5.arcgis.com/oAvs2fapEemUpOTy/arcgis/rest/services/Agol_3_UAP_ETIQUETADO_DEFICIENTES/FeatureServer/3";
+            //url_uap_superv2 = "https://services5.arcgis.com/oAvs2fapEemUpOTy/arcgis/rest/services/Agol_3_UAP_SIN_DEFICIENCIA/FeatureServer/3";
+            //servicio abierto
             url_sed_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2_gdb/FeatureServer/0";
             url_tramo_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2_gdb/FeatureServer/2";
             url_uap_superv = "https://services5.arcgis.com/oAvs2fapEemUpOTy/ArcGIS/rest/services/BD_SupervUAP_agol_2_gdb/FeatureServer/3";
@@ -148,6 +148,8 @@ require([
                 filterFeatureCodSedLayer(layer_sed_superv, filtro_codsed);
                 filterFeatureCodSedLayer(layer_tramo_superv, filtro_codsed);
                 filterFeatureCodSedLayer(layer_uap_superv, filtro_codsed);
+                filterFeatureCodSedLayer(layer_uap_superv1, filtro_codsed);
+                filterFeatureCodSedLayer(layer_uap_superv2, filtro_codsed);
             });
             $("#selectedCodSed2").change(function(){
                 clearLeyend();
@@ -158,6 +160,8 @@ require([
                 filterFeatureCodSedLayer(layer_sed_superv, filtro_codsed);
                 filterFeatureCodSedLayer(layer_tramo_superv, filtro_codsed);
                 filterFeatureCodSedLayer(layer_uap_superv, filtro_codsed);
+                filterFeatureCodSedLayer(layer_uap_superv1, filtro_codsed);
+                filterFeatureCodSedLayer(layer_uap_superv2, filtro_codsed);
             });
             $('#checkinput').on('change', evt => {
                 if (evt.target.checked){
@@ -244,7 +248,7 @@ require([
                 query.returnGeometry = true;
                 query.outFields = ["*"];
                 layer.queryFeatures(query).then(results => {
-                    // prints the array of features to the console
+                    // prints the array of features to the console                    
                     let values = {};
                     if (layer.index == 2) {
                         results.features.forEach(feature => {
@@ -281,8 +285,10 @@ require([
                 query.outSpatialReference = { wkid: 4326 };
                 query.returnGeometry = true;
                 query.outFields = ["*"];
-                layer.queryFeatures(query).then(results => {
+                layer.queryFeatures(query).then(results => {                    
                     layer.definitionExpression = _where;
+                    if (layer.index > 2)
+                        return;
                     let values = {};
                     if (layer.index == 2) {
                         results.features.forEach(feature => {
@@ -400,7 +406,7 @@ require([
                         var img = new Image();
                         img.src = canvasImg;
                         //pdf.addImage(img, 'png', -10, 0, 310, height);
-                        pdf.addImage(img, 'png', 5, 25, 280, 150);
+                        pdf.addImage(img, 'png', 0, 25, 280, 150);
                         pdf.save(`${options.title}.pdf`);
                         options.container.remove();
                         return true;
