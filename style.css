@@ -180,13 +180,13 @@ hr{
 }
 
 .div-legend-parcial{
-	width: 10% !important;
+	width: 15% !important;
 	background-color: white;
-	padding-left: 5px;
+	padding-left: 10px;
 }
 
 .div-legend-total{
-	width: 90% !important;
+	width: 85% !important;
 	background-color: white;
 }
 .div-norte{	
@@ -194,7 +194,7 @@ hr{
     z-index: 9999;
     padding: 10px;
 	text-align: right;
-    margin-left: -180px;
+    margin-left: -260px;
 }
 
 .img-fluid{

@@ -406,7 +406,7 @@ require([
                         var img = new Image();
                         img.src = canvasImg;
                         //pdf.addImage(img, 'png', -10, 0, 310, height);
-                        pdf.addImage(img, 'png', 0, 25, 280, 150);
+                        pdf.addImage(img, 'png', 10, 15, 280, 170);
                         pdf.save(`${options.title}.pdf`);
                         options.container.remove();
                         return true;
@@ -452,7 +452,8 @@ require([
                 let $divLegend = $('<div class="div-legend-parcial">'+ $('#legend').clone().html() +'</div>').appendTo($dom);
                 let $divRsumen = $('<div class="row container">'+ $('#containerInfo').clone().html() +'</div>').appendTo($dom);
                 let $img = $('<img crossorigin="anonymous" class="img-fluid" />').appendTo($div);
-                $img.css({ width: $dom.outerWidth(true), height: $dom.outerHeight(true) });
+                //$img.css({ width: $dom.outerWidth(true), height: $dom.outerHeight(true) });
+                $img.css({ width: '100%' });
                 $img.attr("src", parameters.map);
                 let $img2 = $('<img crossorigin="anonymous" />').appendTo($div2);
                 $img2.css({ width: 25, height: 25 });
@@ -542,7 +543,6 @@ require([
             }
             function generateDinamicResumen($divResumenes, data){
                 let $div = $('<div class="cuadro"></div>').appendTo($divResumenes);
-                //$div.append('<span>Codigo UAP: '+ data.attributes["CODSED"] +'</span><br/>');
                 $div.append('<span>Codigo UAP: '+ data.attributes["ID_LUMINARIA"] +'</span><br/>');
                 $div.append('<span>Ubicacion: '+ data.geometry.latitude.toFixed(4) +', '+ data.geometry.longitude.toFixed(4) +'</span><br/>');
                 $div.append('<span>Deficiencia: DT'+ data.attributes["ESTADODEFICIENCIA"] +'</span><br/>');
